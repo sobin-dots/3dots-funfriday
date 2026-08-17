@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Member {
+  id        String   @id @default(uuid())
+  name      String
+  team      String   @default("No team")
+  points    Int      @default(100)
+  quizScore Int      @default(0)
+  isAdmin   Boolean  @default(false)
+  connected Boolean  @default(false)
+  
+  bids             AuctionBid[]
+  wonItems         AuctionItem[] @relation("WonItems")
+  mythVotes        MythVote[]
+  logoVotes        LogoVote[]
+  solvedCategories SolvedCategory[]
+}
+
+model AuctionItem {
+  id          String   @id @default(uuid())
+  no          Int      @unique
+  name        String
+  why         String
+  status      String   @default("pending")
+  currentBid  Int      @default(0)
+  winningBid  Int      @default(0)
+  reason      String?
+  
+  winnerId    String?
+  winner      Member?  @relation("WonItems", fields: [winnerId], references: [id])
+  
+  bids        AuctionBid[]
+}
+
+model AuctionBid {
+  id            String      @id @default(uuid())
+  amount        Int
+  auctionItemId String
+  auctionItem   AuctionItem @relation(fields: [auctionItemId], references: [id])
+  memberId      String
+  member        Member      @relation(fields: [memberId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+model MythStatement {
+  id          String   @id @default(uuid())
+  no          Int      @unique
+  text        String
+  answer      String
+  explanation String
+  status      String   @default("pending")
+  revealed    Boolean  @default(false)
+  scored      Boolean  @default(false)
+  
+  votes       MythVote[]
+}
+
+model MythVote {
+  id              String        @id @default(uuid())
+  vote            String
+  mythStatementId String
+  mythStatement   MythStatement @relation(fields: [mythStatementId], references: [id])
+  memberId        String
+  member          Member        @relation(fields: [memberId], references: [id])
+
+  @@unique([mythStatementId, memberId])
+}
+
+model LogoItem {
+  id          String   @id @default(uuid())
+  no          Int      @unique
+  level       String
+  svg         String
+  hint        String
+  options     String[] 
+  answer      String
+  explanation String
+  status      String   @default("pending")
+  revealed    Boolean  @default(false)
+  scored      Boolean  @default(false)
+  
+  votes       LogoVote[]
+}
+
+model LogoVote {
+  id          String   @id @default(uuid())
+  vote        String
+  logoItemId  String
+  logoItem    LogoItem @relation(fields: [logoItemId], references: [id])
+  memberId    String
+  member      Member   @relation(fields: [memberId], references: [id])
+
+  @@unique([logoItemId, memberId])
+}
+
+model ConnectionPuzzle {
+  id                 String   @id @default(uuid())
+  no                 Int      @unique
+  title              String
+  status             String   @default("pending")
+  revealedCategories String[] 
+  
+  categories         ConnectionCategory[]
+}
+
+model ConnectionCategory {
+  id                 String           @id @default(uuid())
+  name               String
+  level              String
+  words              String[]
+  connectionPuzzleId String
+  connectionPuzzle   ConnectionPuzzle @relation(fields: [connectionPuzzleId], references: [id])
+  
+  solvedBy           SolvedCategory[]
+}
+
+model SolvedCategory {
+  id                   String             @id @default(uuid())
+  memberId             String
+  member               Member             @relation(fields: [memberId], references: [id])
+  connectionCategoryId String
+  connectionCategory   ConnectionCategory @relation(fields: [connectionCategoryId], references: [id])
+
+  @@unique([memberId, connectionCategoryId])
+}
+
+model GameState {
+  id                 String  @id @default("global")
+  phase              String  @default("lobby")
+  activeAuctionId    String?
+  activeMythId       String?
+  activeLogoId       String?
+  activeConnectionId String?
+}

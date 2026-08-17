@@ -1,0 +1,34 @@
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:390
+        throw new PrismaClientInitializationError(
+              ^
+
+
+PrismaClientInitializationError: PrismaClient was instantiated without any options. A driver adapter is required to connect to your database.
+
+Pass a driver adapter to the PrismaClient constructor, for example:
+
+  import { PrismaPg } from '@prisma/adapter-pg'
+  import { PrismaClient } from './generated/prisma/client'
+
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+  const prisma = new PrismaClient({ adapter })
+
+Learn more about driver adapters: https://pris.ly/d/driver-adapters
+
+If you use Prisma Accelerate instead of connecting to your database directly, pass `accelerateUrl` to the PrismaClient constructor instead of `adapter`.
+    at new t (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:390:15)
+    at <anonymous> (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\prisma\seed.ts:3:16)
+    at Object.<anonymous> (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\prisma\seed.ts:125:6)
+    at Module._compile (node:internal/modules/cjs/loader:1521:14)
+    at Object.transformer (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\tsx\dist\register-C557imBs.cjs:9:3619)
+    at Module.load (node:internal/modules/cjs/loader:1266:32)
+    at Module._load (node:internal/modules/cjs/loader:1091:12)
+    at cjsLoader (node:internal/modules/esm/translators:298:15)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25) {
+  clientVersion: '7.9.1',
+  errorCode: undefined,
+  retryable: undefined
+}
+
+Node.js v20.20.0
