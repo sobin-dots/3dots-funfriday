@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fun Friday — Big Screen</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    body { font-size: 1.15rem; }
+    .present-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .present-wrap .bigitem .name { font-size: 2.6rem; }
+    .present-wrap .bid-display { font-size: 4rem; }
+    .present-wrap .vote-bar { height: 46px; }
+    .present-wrap .vote-bar .seg { font-size: 1.2rem; }
+    .ptitle { text-align: center; font-size: 1.6rem; font-weight: 800; margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <div class="present-wrap">
+    <div class="topbar">
+      <div class="brand"><span class="emoji">🚀</span> 3dots x Wizi — Partnership Event</div>
+      <div class="chips">
+        <a class="chip" href="/deck.html" target="_blank" style="text-decoration:none;color:inherit;font-weight:bold">📊 Presentation Deck</a>
+        <span class="chip">👥 <b id="p-online">0</b> playing</span>
+      </div>
+    </div>
+    <div id="present-body"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function () {
+      const socket = io();
+      const $ = (s) => document.querySelector(s);
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      socket.on('connect', () => socket.emit('spectator:join'));
+
+      socket.on('state', (state) => {
+        $('#p-online').textContent = state.counts.online;
+        let html = '';
+        if (state.phase === 'auction') html = pAuction(state);
+        else if (state.phase === 'myth') html = pMyth(state);
+        else if (state.phase === 'logo') html = pLogo(state);
+        else if (state.phase === 'connection') html = pConnection(state);
+        else if (state.phase === 'results') html = pResults(state);
+        else html = `<div class="card empty" style="font-size:1.6rem">⏳ Get ready! The next game starts soon…<br/><span class="muted">Join from your phone on the office Wi-Fi.</span></div>`;
+        $('#present-body').innerHTML = html;
+      });
+
+      function pAuction(state) {
+        const item = state.auction.items.find((i) => i.id === state.auction.activeItemId);
+        if (!item) return `<div class="card empty" style="font-size:1.6rem">🏷️ Productivity Auction<br/><span class="muted">Next item coming up…</span></div>`;
+        return `<div class="ptitle">🏷️ Productivity Auction — Item #${item.no}</div>
+          <div class="card"><div class="bigitem">
+            <div class="name">${esc(item.name)}</div>
+            <div class="why">${esc(item.why)}</div>
+            <div class="bid-display">${item.currentBid} pts</div>
+            <div class="bid-by" style="font-size:1.4rem">${item.currentBidderName ? '🏆 ' + esc(item.currentBidderName) : 'Waiting for the first bid…'}</div>
+          </div></div>`;
+      }
+
+      function pMyth(state) {
+        const st = state.myth.statements[state.myth.activeIndex];
+        if (!st) return `<div class="card empty" style="font-size:1.6rem">🧠 Myth Buster<br/><span class="muted">Next statement coming up…</span></div>`;
+        const c = st.voteCounts, total = c.True + c.False;
+        const tp = total ? Math.round((c.True / total) * 100) : 0, fp = total ? 100 - tp : 0;
+        let answer = '';
+        if (st.revealed) {
+          answer = `<div class="answer-box ${st.answer === 'True' ? 'true' : 'false'}" style="font-size:1.5rem">
+            ✔ Correct answer: ${st.answer.toUpperCase()}<br/><span class="muted" style="font-weight:500;font-size:1.1rem">${esc(st.explanation)}</span></div>`;
+        }
+        return `<div class="ptitle">🧠 Myth Buster — Statement #${st.no}</div>
+          <div class="card">
+            <div class="bigitem" style="text-align:left"><div class="name">${esc(st.text)}</div></div>
+            <div class="vote-bar">
+              <div class="seg seg-true" style="width:${tp}%">${c.True ? 'TRUE ' + tp + '%' : ''}</div>
+              <div class="seg seg-false" style="width:${fp}%">${c.False ? 'FALSE ' + fp + '%' : ''}</div>
+            </div>
+            <p class="center" style="font-size:1.4rem">✅ ${c.True} &nbsp;·&nbsp; ❌ ${c.False} &nbsp;·&nbsp; ${st.totalVotes} votes</p>
+            ${answer}
+          </div>`;
+      }
+
+      function pLogo(state) {
+        const item = state.logo.items[state.logo.activeIndex];
+        if (!item) return `<div class="card empty" style="font-size:1.6rem">🎨 Vintage Logo Finder<br/><span class="muted">Next logo coming up…</span></div>`;
+        const total = item.totalVotes;
+        let answer = '';
+        if (item.revealed) {
+          answer = `<div class="answer-box true" style="font-size:1.5rem">
+            🎉 Correct Answer: <b>${esc(item.answer)}</b><br/><span class="muted" style="font-weight:500;font-size:1.1rem">${esc(item.explanation)}</span></div>`;
+        }
+        const optBars = item.options.map((opt) => {
+          const count = item.voteCounts[opt] || 0;
+          const pct = total ? Math.round((count / total) * 100) : 0;
+          const isCorrect = item.revealed && opt === item.answer;
+          return `<div style="margin-bottom:8px">
+            <div class="flex-between" style="font-weight:700;font-size:1.1rem">
+              <span>${esc(opt)} ${isCorrect ? '✅' : ''}</span>
+              <span>${count} (${pct}%)</span>
+            </div>
+            <div class="vote-bar" style="height:18px">
+              <div class="seg ${isCorrect ? 'seg-true' : 'seg-false'}" style="width:${pct}%;background:${isCorrect ? 'var(--good)' : 'var(--brand)'}"></div>
+            </div>
+          </div>`;
+        }).join('');
+
+        return `<div class="ptitle">🎨 Vintage Logo Finder — Logo #${item.no} &nbsp;<span class="badge ${item.level}">${item.level.toUpperCase()}</span></div>
+          <div class="card center">
+            <div class="logo-img-container" style="max-width:340px;height:280px">
+              <img src="${esc(item.svg)}" alt="Vintage Logo" />
+            </div>
+            <p class="muted" style="font-size:1.25rem;font-style:italic">"${esc(item.hint)}"</p>
+            <div style="margin:20px 0;text-align:left">${optBars}</div>
+            <p class="center" style="font-size:1.3rem">📥 Total votes received: <b>${total}</b></p>
+            ${answer}
+          </div>`;
+      }
+
+      function pConnection(state) {
+        const pz = state.connection.puzzles[state.connection.activeIndex];
+        if (!pz) return `<div class="card empty" style="font-size:1.6rem">🧩 Connection Puzzle<br/><span class="muted">Next puzzle coming up…</span></div>`;
+
+        const cats = pz.categories.map((c) => {
+          const colorClass = `cat-${c.level}`;
+          if (c.isRevealed) {
+            return `<div class="cat-banner ${colorClass}">
+              <div class="cat-title">${esc(c.name)}</div>
+              <div class="cat-words">${c.words.map(esc).join(' • ')}</div>
+            </div>`;
+          }
+          return `<div class="card" style="margin-bottom:10px">
+            <div class="flex-between">
+              <div><b style="font-size:1.2rem">Category: ???</b> <span class="muted">(${c.level.toUpperCase()} TIER)</span></div>
+              <div><b>${c.solvedCount}</b> player(s) solved</div>
+            </div>
+          </div>`;
+        }).join('');
+
+        // Grid of remaining unrevealed words
+        const allWords = pz.categories.flatMap((c) => c.words);
+        const gridHtml = `<div class="conn-grid">
+          ${allWords.map((w) => `<div class="word-tile" style="cursor:default">${esc(w)}</div>`).join('')}
+        </div>`;
+
+        return `<div class="ptitle">🧩 ${esc(pz.title)}</div>
+          <div class="card">
+            ${cats}
+            <h3 style="margin-top:20px;text-align:center">16 Words to Group into 4 Categories</h3>
+            ${gridHtml}
+          </div>`;
+      }
+
+      function pResults(state) {
+        const teams = state.teams;
+        const sold = state.auction.items.filter((i) => i.status === 'sold' && i.winnerId);
+        return `<div class="ptitle">🏆 Results</div>
+          <div class="card"><h2>Team scoreboard</h2>
+            <table><tr><th class="rank">#</th><th>Team</th><th>Quiz score</th><th>Items won</th></tr>
+            ${teams.map((t, i) => `<tr><td class="rank">${i + 1}</td><td><b>${esc(t.team)}</b></td><td><b>${t.quizScore}</b></td><td>${t.itemsWon}</td></tr>`).join('')}
+            </table></div>
+          ${sold.length ? `<div class="card"><h2>🧾 Auction winners</h2>
+            <table><tr><th>Item</th><th>Winner</th><th>Paid</th></tr>
+            ${sold.map((i) => `<tr><td>${esc(i.name)}</td><td>${esc(i.winnerName)}</td><td><b>${i.winningBid}</b></td></tr>`).join('')}
+            </table></div>` : ''}`;
+      }
+    })();
+  </script>
+</body>
+</html>

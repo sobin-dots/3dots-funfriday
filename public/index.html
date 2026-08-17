@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6c7bff" />
+  <title>Fun Friday — Productivity Games</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <!-- ============ LOGIN ============ -->
+    <section id="view-login">
+      <div class="hero">
+        <h1>🎉 Fun Friday</h1>
+        <p>Auction · Myth Buster · Vintage Logo Finder · Connection</p>
+      </div>
+      <div class="login-grid">
+        <div class="card">
+          <h2>👋 Join as a team member</h2>
+          <label for="in-name">Your name</label>
+          <input id="in-name" type="text" placeholder="e.g. Priya" maxlength="40" autocomplete="off" />
+          <label for="in-team">Your team</label>
+          <input id="in-team" type="text" placeholder="e.g. Team Rocket" maxlength="40" autocomplete="off" list="team-list" />
+          <datalist id="team-list"></datalist>
+          <br />
+          <button id="btn-join" class="block">Join the fun →</button>
+        </div>
+        <div class="card">
+          <h2>🛠️ Admin / Facilitator</h2>
+          <p class="muted">Run the auction and games from here.</p>
+          <label for="in-pass">Admin password</label>
+          <input id="in-pass" type="password" placeholder="••••••••" />
+          <br />
+          <button id="btn-admin" class="block secondary">Open control panel</button>
+          <p class="muted" style="margin-top:14px;font-size:0.85rem">
+            📊 Slide Deck: <a href="/deck.html" target="_blank" rel="noopener" style="font-weight:bold;color:var(--brand)">/deck.html (PPT Presentation)</a><br/>
+            Projector view: <a href="/present.html" target="_blank" rel="noopener">/present.html</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MEMBER ============ -->
+    <section id="view-member" class="hidden">
+      <div class="topbar">
+        <div class="brand"><span class="emoji">🎉</span> Fun Friday</div>
+        <div class="chips">
+          <span class="chip" id="m-who"></span>
+          <span class="chip">💰 <b id="m-points">100</b> pts</span>
+          <span class="chip">🧠 <b id="m-quiz">0</b> quiz</span>
+          <button class="chip" id="m-logout" style="cursor:pointer">Leave</button>
+        </div>
+      </div>
+      <div id="member-body"></div>
+    </section>
+
+    <!-- ============ ADMIN ============ -->
+    <section id="view-admin" class="hidden">
+      <div class="topbar">
+        <div class="brand"><span class="emoji">🛠️</span> Fun Friday — Control Panel</div>
+        <div class="chips">
+          <span class="chip">👥 <b id="a-online">0</b> online</span>
+          <span class="chip">🧑‍🤝‍🧑 <b id="a-total">0</b> joined</span>
+          <a class="chip" href="/present.html" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">📺 Projector</a>
+        </div>
+      </div>
+      <div class="tabs" id="admin-tabs">
+        <div class="tab active" data-tab="auction">🏷️ Auction</div>
+        <div class="tab" data-tab="myth">🧠 Myth Buster</div>
+        <div class="tab" data-tab="logo">🎨 Logo Finder</div>
+        <div class="tab" data-tab="connection">🧩 Connection</div>
+        <div class="tab" data-tab="people">👥 People</div>
+      </div>
+      <div id="admin-body"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

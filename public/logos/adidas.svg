@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#10151c"/>
+  <rect x="25" y="40" width="250" height="220" rx="16" fill="#19222e" stroke="#3498db" stroke-width="4"/>
+  <!-- 1949 Spiked track shoe with 3 stripes silhouette -->
+  <path d="M 70 145 C 90 115 170 110 220 135 L 230 155 L 70 155 Z" fill="#ffffff"/>
+  <!-- 3 Stripes across shoe -->
+  <line x1="120" y1="120" x2="110" y2="155" stroke="#19222e" stroke-width="5"/>
+  <line x1="140" y1="118" x2="130" y2="155" stroke="#19222e" stroke-width="5"/>
+  <line x1="160" y1="120" x2="150" y2="155" stroke="#19222e" stroke-width="5"/>
+  <text x="150" y="195" font-family="'Century Gothic', 'Avant Garde', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" letter-spacing="3" text-anchor="middle">3 STRIPES</text>
+  <text x="150" y="235" font-family="sans-serif" font-size="11" fill="#aaaaaa" text-anchor="middle">ADI DASSLER TRACK SHOE LOGO (1949)</text>
+</svg>

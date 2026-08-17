@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#0d1821"/>
+  <circle cx="150" cy="150" r="125" fill="#1b2a3a" stroke="#4a90e2" stroke-width="5"/>
+  <!-- Salmon Fish drawing (Nokianvirta River mill 1865) -->
+  <path d="M 65 150 C 90 110 170 100 220 140 C 235 150 245 150 240 165 C 230 180 160 190 90 170 Z" fill="#2c3e50" stroke="#ffffff" stroke-width="4"/>
+  <circle cx="205" cy="135" r="5" fill="#ffffff"/>
+  <!-- Tail fin -->
+  <polygon points="65,150 40,125 45,175" fill="#ffffff"/>
+  <!-- Fish Scales -->
+  <path d="M 120 135 Q 130 150 120 165 M 145 130 Q 155 150 145 170" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <text x="150" y="225" font-family="'Times New Roman', serif" font-size="20" font-weight="bold" fill="#ffffff" letter-spacing="4" text-anchor="middle">SALMON MILL</text>
+  <text x="150" y="250" font-family="sans-serif" font-size="10" fill="#4a90e2" text-anchor="middle">FINNISH PULP MILL LOGO (1865)</text>
+</svg>

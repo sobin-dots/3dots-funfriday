@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#1c1618"/>
+  <circle cx="150" cy="150" r="125" fill="#2b1f24" stroke="#e5a93b" stroke-width="4"/>
+  <!-- Flames surround -->
+  <path d="M 150 45 C 130 65 120 85 125 105 C 110 90 100 110 115 130 C 95 125 90 145 105 165 C 85 170 90 195 115 200 C 130 215 150 220 150 220 C 150 220 170 215 185 200 C 210 195 215 170 195 165 C 210 145 205 125 185 130 C 200 110 190 90 175 105 C 180 85 170 65 150 45 Z" fill="none" stroke="#e5a93b" stroke-width="3"/>
+  <!-- Thousand-armed Kwanon seated figure silhouette -->
+  <circle cx="150" cy="120" r="16" fill="#e5a93b"/>
+  <path d="M 130 140 C 130 180 170 180 170 140 Z" fill="#e5a93b"/>
+  <!-- Flame rays -->
+  <line x1="150" y1="50" x2="150" y2="30" stroke="#e5a93b" stroke-width="3"/>
+  <line x1="90" y1="90" x2="70" y2="70" stroke="#e5a93b" stroke-width="3"/>
+  <line x1="210" y1="90" x2="230" y2="70" stroke="#e5a93b" stroke-width="3"/>
+  <!-- Vintage Kwanon typography removed -->
+  <text x="150" y="255" font-family="'Palatino', 'Georgia', serif" font-size="22" font-weight="bold" fill="#e5a93b" letter-spacing="4" text-anchor="middle">★ 1934 ★</text>
+</svg>

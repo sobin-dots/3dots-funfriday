@@ -1,0 +1,16 @@
+{
+  "name": "fun-friday",
+  "version": "1.0.0",
+  "description": "Office Fun Friday activities app: Productivity Auction & Myth Buster",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "qrcode-terminal": "^0.12.0",
+    "socket.io": "^4.7.5"
+  }
+}
