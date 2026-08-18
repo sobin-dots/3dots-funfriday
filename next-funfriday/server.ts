@@ -55,8 +55,8 @@ app.prepare().then(() => {
                 }
             });
 
-            const members: Record<string, any> = {};
-            membersList.forEach((m: any) => {
+            const members: Record<string, { id: string; name: string; team: string; points: number; quizScore: number; connected: boolean; wonItems: number[] }> = {};
+            membersList.forEach((m) => {
                 members[m.id] = {
                     id: m.id,
                     name: m.name,
@@ -64,88 +64,106 @@ app.prepare().then(() => {
                     points: m.points,
                     quizScore: m.quizScore,
                     connected: m.connected,
-                    wonItems: m.wonItems.map((i: any) => i.no)
+                    wonItems: m.wonItems.map((i) => i.no)
                 };
             });
 
             // Build Auction State
-            let auctionState = { activeItemId: null as number | null, status: 'pending', currentBid: 0, currentBidderId: null as string | null, winnerId: null as string | null, winningBid: 0, reason: '' };
-            if (globalState.activeAuctionId) {
-                const activeItem = await prisma.auctionItem.findUnique({
-                    where: { id: globalState.activeAuctionId },
-                    include: { bids: { orderBy: { amount: 'desc' }, take: 1 } }
-                });
-                if (activeItem) {
-                    auctionState = {
-                        activeItemId: activeItem.no,
-                        status: activeItem.status,
-                        currentBid: activeItem.currentBid,
-                        currentBidderId: activeItem.bids[0]?.memberId || null,
-                        winnerId: activeItem.winnerId,
-                        winningBid: activeItem.winningBid,
-                        reason: activeItem.reason || ''
-                    };
-                }
-            }
+            const allAuctionItems = await prisma.auctionItem.findMany({
+                orderBy: { no: 'asc' },
+                include: { bids: { orderBy: { amount: 'desc' }, take: 1 } }
+            });
+            const auctionState = {
+                activeItemId: globalState.activeAuctionId ? allAuctionItems.find(i => i.id === globalState.activeAuctionId)?.no || null : null,
+                items: allAuctionItems.map(i => ({
+                    id: i.id,
+                    no: i.no,
+                    name: i.name,
+                    why: i.why,
+                    status: i.status,
+                    currentBid: i.currentBid,
+                    currentBidderId: i.bids[0]?.memberId || null,
+                    winnerId: i.winnerId,
+                    winningBid: i.winningBid,
+                    reason: i.reason
+                }))
+            };
 
             // Build Myth State
-            let mythState = { activeStatementId: null as number | null, revealed: false, votes: {} as Record<string, string> };
-            if (globalState.activeMythId) {
-                const activeMyth = await prisma.mythStatement.findUnique({
-                    where: { id: globalState.activeMythId },
-                    include: { votes: true }
-                });
-                if (activeMyth) {
+            const allMythStatements = await prisma.mythStatement.findMany({
+                orderBy: { no: 'asc' },
+                include: { votes: true }
+            });
+            const mythState = {
+                activeStatementId: globalState.activeMythId ? allMythStatements.find(m => m.id === globalState.activeMythId)?.no || null : null,
+                statements: allMythStatements.map(m => {
                     const votes: Record<string, string> = {};
-                    activeMyth.votes.forEach((v: any) => votes[v.memberId] = v.vote);
-                    mythState = {
-                        activeStatementId: activeMyth.no,
-                        revealed: activeMyth.revealed,
+                    m.votes.forEach((v) => votes[v.memberId] = v.vote);
+                    return {
+                        id: m.id,
+                        no: m.no,
+                        text: m.text,
+                        answer: m.answer,
+                        explanation: m.explanation,
+                        status: m.status,
+                        revealed: m.revealed,
+                        totalVotes: m.votes.length,
                         votes
                     };
-                }
-            }
+                })
+            };
 
             // Build Logo State
-            let logoState = { activeLogoId: null as number | null, revealed: false, votes: {} as Record<string, string> };
-            if (globalState.activeLogoId) {
-                const activeLogo = await prisma.logoItem.findUnique({
-                    where: { id: globalState.activeLogoId },
-                    include: { votes: true }
-                });
-                if (activeLogo) {
+            const allLogoItems = await prisma.logoItem.findMany({
+                orderBy: { no: 'asc' },
+                include: { votes: true }
+            });
+            const logoState = {
+                activeLogoId: globalState.activeLogoId ? allLogoItems.find(l => l.id === globalState.activeLogoId)?.no || null : null,
+                items: allLogoItems.map(l => {
                     const votes: Record<string, string> = {};
-                    activeLogo.votes.forEach((v: any) => votes[v.memberId] = v.vote);
-                    logoState = {
-                        activeLogoId: activeLogo.no,
-                        revealed: activeLogo.revealed,
+                    l.votes.forEach((v) => votes[v.memberId] = v.vote);
+                    return {
+                        id: l.id,
+                        no: l.no,
+                        level: l.level,
+                        svg: l.svg,
+                        hint: l.hint,
+                        answer: l.answer,
+                        options: l.options,
+                        explanation: l.explanation,
+                        status: l.status,
+                        revealed: l.revealed,
+                        totalVotes: l.votes.length,
                         votes
                     };
-                }
-            }
+                })
+            };
 
             // Build Connection State
-            let connectionState = { activePuzzleId: null as number | null, revealedCategories: [] as string[], solvedBy: {} as Record<string, string[]> };
-            if (globalState.activeConnectionId) {
-                const activePuzzle = await prisma.connectionPuzzle.findUnique({
-                    where: { id: globalState.activeConnectionId },
-                    include: { categories: { include: { solvedBy: true } } }
-                });
-                if (activePuzzle) {
-                    const solvedBy: Record<string, string[]> = {};
-                    activePuzzle.categories.forEach((cat: any) => {
-                        cat.solvedBy.forEach((solve: any) => {
-                            if (!solvedBy[solve.memberId]) solvedBy[solve.memberId] = [];
-                            solvedBy[solve.memberId].push(cat.name);
-                        });
-                    });
-                    connectionState = {
-                        activePuzzleId: activePuzzle.no,
-                        revealedCategories: activePuzzle.revealedCategories,
-                        solvedBy
+            const allConnectionPuzzles = await prisma.connectionPuzzle.findMany({
+                orderBy: { no: 'asc' },
+                include: { categories: { include: { solvedBy: true } } }
+            });
+            const connectionState = {
+                activePuzzleId: globalState.activeConnectionId ? allConnectionPuzzles.find(p => p.id === globalState.activeConnectionId)?.no || null : null,
+                puzzles: allConnectionPuzzles.map(p => {
+                    return {
+                        id: p.id,
+                        no: p.no,
+                        title: p.title,
+                        status: p.status,
+                        revealedCategories: p.revealedCategories,
+                        categories: p.categories.map((c) => ({
+                            id: c.id,
+                            name: c.name,
+                            level: c.level,
+                            words: c.words,
+                            solvedBy: c.solvedBy.map((s) => s.memberId)
+                        }))
                     };
-                }
-            }
+                })
+            };
 
             const fullState = {
                 phase: globalState.phase,
@@ -194,6 +212,7 @@ app.prepare().then(() => {
             }
             socket.data.role = 'admin';
             if (ack) ack({ ok: true });
+            broadcast();
         });
 
         // -- Phase Control --
@@ -627,14 +646,26 @@ app.prepare().then(() => {
                 if (member) {
                     await prisma.member.update({
                         where: { id: member.id },
-                        data: { points: member.points + 20 }
+                        data: {
+                            points: member.points + 20,
+                            quizScore: member.quizScore + 20
+                        }
                     });
                 }
 
-                if (ack) ack({ ok: true, category: matchedCategory });
+                if (ack) ack({ ok: true, matched: true, category: matchedCategory.name });
                 broadcast();
             } else {
-                if (ack) ack({ ok: false, error: 'Incorrect group. Try again!' });
+                // Check for one away
+                let oneAway = false;
+                for (const category of puzzle.categories) {
+                    const intersection = submittedWords.filter(w => category.words.includes(w));
+                    if (intersection.length === 3) {
+                        oneAway = true;
+                        break;
+                    }
+                }
+                if (ack) ack({ ok: true, matched: false, oneAway });
             }
         });
 
@@ -692,6 +723,12 @@ app.prepare().then(() => {
 
         socket.on('admin:kick', async ({ memberId }) => {
             if (socket.data.role !== 'admin') return;
+
+            // Delete related records first to avoid foreign key constraint errors
+            await prisma.auctionBid.deleteMany({ where: { memberId } });
+            await prisma.mythVote.deleteMany({ where: { memberId } });
+            await prisma.logoVote.deleteMany({ where: { memberId } });
+            await prisma.solvedCategory.deleteMany({ where: { memberId } });
 
             await prisma.member.delete({ where: { id: memberId } }).catch(() => { });
 

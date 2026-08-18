@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#1c160c"/>
+  <circle cx="150" cy="150" r="125" fill="#2d2212" stroke="#f39c12" stroke-width="5"/>
+  <!-- Chef Speedee mascot silhouette -->
+  <circle cx="150" cy="105" r="22" fill="#f39c12"/>
+  <!-- Winking Chef hat -->
+  <path d="M 130 90 L 150 65 L 170 90 Z" fill="#ffffff"/>
+  <rect x="132" y="86" width="36" height="8" fill="#e74c3c"/>
+  <text x="150" y="165" font-family="'Impact', 'Arial Black', sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3">SPEEDEE</text>
+  <text x="150" y="195" font-family="'Arial', sans-serif" font-size="16" font-weight="bold" fill="#f1c40f" text-anchor="middle">FAMOUS BARBECUE</text>
+  <text x="150" y="225" font-family="sans-serif" font-size="11" fill="#aaaaaa" text-anchor="middle">SPEEDEE SERVICE SYSTEM (1940)</text>
+</svg>

@@ -1,5 +1,5 @@
 {
-  "phase": "lobby",
+  "phase": "logo",
   "members": {
     "m-msjy3a4x-0tp4pq": {
       "id": "m-msjy3a4x-0tp4pq",
@@ -221,10 +221,22 @@
       "isAdmin": false,
       "connected": false
     },
-    "m-msy9hor2-axyrfo": {
-      "id": "m-msy9hor2-axyrfo",
-      "name": "test",
-      "team": "test",
+    "m-msyi4fow-hzv3rf": {
+      "id": "m-msyi4fow-hzv3rf",
+      "name": "Gokila",
+      "team": "3dots",
+      "points": 46,
+      "quizScore": 0,
+      "itemsWon": [
+        "item-7"
+      ],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msyikcfq-miw8fj": {
+      "id": "m-msyikcfq-miw8fj",
+      "name": "team",
+      "team": "3dots",
       "points": 100,
       "quizScore": 0,
       "itemsWon": [],
@@ -233,7 +245,7 @@
     }
   },
   "auction": {
-    "activeItemId": "item-3",
+    "activeItemId": null,
     "items": [
       {
         "id": "item-1",
@@ -264,7 +276,7 @@
         "no": 3,
         "name": "Auto-delegation of all low-value repetitive tasks",
         "why": "Frees up your time",
-        "status": "active",
+        "status": "pending",
         "currentBid": 0,
         "currentBidderId": null,
         "winnerId": null,
@@ -312,11 +324,11 @@
         "no": 7,
         "name": "Remove all notifications from your phone & laptop",
         "why": "Reduces distractions",
-        "status": "pending",
-        "currentBid": 0,
-        "currentBidderId": null,
-        "winnerId": null,
-        "winningBid": 0,
+        "status": "sold",
+        "currentBid": 54,
+        "currentBidderId": "m-msyi4fow-hzv3rf",
+        "winnerId": "m-msyi4fow-hzv3rf",
+        "winningBid": 54,
         "reason": ""
       },
       {
@@ -388,7 +400,7 @@
         "text": "Multitasking helps you get more work done",
         "answer": "False",
         "explanation": "It reduces efficiency by up to 40%.",
-        "status": "pending",
+        "status": "active",
         "revealed": false,
         "scored": false,
         "votes": {}

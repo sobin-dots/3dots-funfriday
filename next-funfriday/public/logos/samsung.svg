@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#18130c"/>
+  <rect x="35" y="35" width="230" height="230" rx="16" fill="#2c2114" stroke="#d4af37" stroke-width="5"/>
+  <!-- 3 Stars representing 'Three Stars' -->
+  <g transform="translate(150, 105)" fill="#d4af37">
+    <polygon points="0,-18 5,-5 18,-5 8,3 12,16 0,8 -12,16 -8,3 -18,-5 -5,-5"/>
+    <polygon points="-50,0 -45,13 -32,13 -42,21 -38,34 -50,26 -62,34 -58,21 -68,13 -55,13"/>
+    <polygon points="50,0 55,13 68,13 58,21 62,34 50,26 38,34 42,21 32,13 45,13"/>
+  </g>
+  <text x="150" y="175" font-family="'Times New Roman', serif" font-size="22" font-weight="bold" fill="#ffffff" letter-spacing="3" text-anchor="middle">THREE STARS</text>
+  <text x="150" y="205" font-family="'Georgia', serif" font-size="13" fill="#d4af37" text-anchor="middle">NOODLE &amp; GROCERY CO.</text>
+  <text x="150" y="245" font-family="sans-serif" font-size="10" fill="#aaaaaa" text-anchor="middle">ORIGINAL KOREAN TRADEMARK (1938)</text>
+</svg>

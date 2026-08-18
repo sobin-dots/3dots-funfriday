@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#121820"/>
+  <rect x="25" y="40" width="250" height="220" rx="16" fill="#1c2533" stroke="#4285f4" stroke-width="4"/>
+  <!-- 1998 Baskerville 3D colorful letters replaced with question mark / search symbol -->
+  <g font-family="'Georgia', 'Times New Roman', serif" font-size="64" font-weight="900" text-anchor="middle">
+    <text x="110" y="145" fill="#4285f4">?</text>
+    <text x="150" y="145" fill="#ea4335">?</text>
+    <text x="190" y="145" fill="#fbbc05">!</text>
+  </g>
+  <path d="M 45 165 C 100 180 200 180 255 165 Z" fill="#4285f4"/>
+  <text x="150" y="210" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#dddddd" letter-spacing="2" text-anchor="middle">STANFORD SEARCH ENGINE</text>
+  <text x="150" y="235" font-family="sans-serif" font-size="11" fill="#aaaaaa" text-anchor="middle">ORIGINAL 1998 BETA LOGO</text>
+</svg>

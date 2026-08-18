@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#1f1014"/>
+  <circle cx="150" cy="150" r="125" fill="#301920" stroke="#e74c3c" stroke-width="5"/>
+  <!-- Mr. P (Julius Pringles) face silhouette -->
+  <ellipse cx="150" cy="100" rx="40" ry="32" fill="#f5d6ba"/>
+  <!-- Large black mustache -->
+  <path d="M 120 108 C 135 98 150 115 150 110 C 150 115 165 98 180 108 C 190 120 165 125 150 118 C 135 125 110 120 120 108 Z" fill="#2c1a0e"/>
+  <!-- Red bowtie -->
+  <polygon points="140,126 150,132 160,126 160,138 150,132 140,138" fill="#e74c3c"/>
+  <text x="150" y="175" font-family="'Impact', sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="3" text-anchor="middle">MR. P</text>
+  <text x="150" y="200" font-family="'Arial', sans-serif" font-size="12" font-weight="bold" fill="#f1c40f" letter-spacing="2" text-anchor="middle">POTATO CHIPS</text>
+  <text x="150" y="240" font-family="sans-serif" font-size="11" fill="#aaaaaa" text-anchor="middle">ORIGINAL 1967 MR. P MASCOT</text>
+</svg>

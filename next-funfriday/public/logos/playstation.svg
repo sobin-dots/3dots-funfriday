@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#10141e"/>
+  <rect x="25" y="40" width="250" height="220" rx="16" fill="#182030" stroke="#00d2d3" stroke-width="4"/>
+  <!-- 3D polygon concept shapes without PS lettering -->
+  <polygon points="150,60 190,110 110,110" fill="#ff4d4d"/>
+  <polygon points="100,120 180,120 200,160 80,160" fill="#fffa65"/>
+  <polygon points="110,165 190,165 170,195 130,195" fill="#32ff7e"/>
+  <text x="150" y="240" font-family="sans-serif" font-size="11" font-weight="bold" fill="#aaaaaa" text-anchor="middle">ORIGINAL 1994 POLYGON CONCEPT</text>
+</svg>

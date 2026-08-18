@@ -1,0 +1,30 @@
+
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\app\components\AuctionView.tsx
+  167:54  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  167:65  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\app\components\LogoFinderView.tsx
+   62:70  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+   62:88  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  111:65  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  135:74  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  135:92  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\app\components\MythBusterView.tsx
+  118:65  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\app\present\page.tsx
+  136:95   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  136:107  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\server.ts
+   58:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  101:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  157:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 17 problems (17 errors, 0 warnings)
+
