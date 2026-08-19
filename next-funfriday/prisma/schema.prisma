@@ -7,57 +7,53 @@ datasource db {
 }
 
 model Member {
-  id        String   @id @default(uuid())
-  name      String
-  team      String   @default("No team")
-  points    Int      @default(100)
-  quizScore Int      @default(0)
-  isAdmin   Boolean  @default(false)
-  connected Boolean  @default(false)
-  
+  id               String           @id @default(uuid())
+  name             String
+  team             String           @default("No team")
+  points           Int              @default(100)
+  quizScore        Int              @default(0)
+  isAdmin          Boolean          @default(false)
+  connected        Boolean          @default(false)
   bids             AuctionBid[]
-  wonItems         AuctionItem[] @relation("WonItems")
-  mythVotes        MythVote[]
+  wonItems         AuctionItem[]    @relation("WonItems")
   logoVotes        LogoVote[]
+  mythVotes        MythVote[]
   solvedCategories SolvedCategory[]
 }
 
 model AuctionItem {
-  id          String   @id @default(uuid())
-  no          Int      @unique
-  name        String
-  why         String
-  status      String   @default("pending")
-  currentBid  Int      @default(0)
-  winningBid  Int      @default(0)
-  reason      String?
-  
-  winnerId    String?
-  winner      Member?  @relation("WonItems", fields: [winnerId], references: [id])
-  
-  bids        AuctionBid[]
+  id         String       @id @default(uuid())
+  no         Int          @unique
+  name       String
+  why        String
+  status     String       @default("pending")
+  currentBid Int          @default(0)
+  winningBid Int          @default(0)
+  reason     String?
+  winnerId   String?
+  bids       AuctionBid[]
+  winner     Member?      @relation("WonItems", fields: [winnerId], references: [id])
 }
 
 model AuctionBid {
   id            String      @id @default(uuid())
   amount        Int
   auctionItemId String
-  auctionItem   AuctionItem @relation(fields: [auctionItemId], references: [id])
   memberId      String
-  member        Member      @relation(fields: [memberId], references: [id])
   createdAt     DateTime    @default(now())
+  auctionItem   AuctionItem @relation(fields: [auctionItemId], references: [id])
+  member        Member      @relation(fields: [memberId], references: [id])
 }
 
 model MythStatement {
-  id          String   @id @default(uuid())
-  no          Int      @unique
+  id          String     @id @default(uuid())
+  no          Int        @unique
   text        String
   answer      String
   explanation String
-  status      String   @default("pending")
-  revealed    Boolean  @default(false)
-  scored      Boolean  @default(false)
-  
+  status      String     @default("pending")
+  revealed    Boolean    @default(false)
+  scored      Boolean    @default(false)
   votes       MythVote[]
 }
 
@@ -65,47 +61,45 @@ model MythVote {
   id              String        @id @default(uuid())
   vote            String
   mythStatementId String
-  mythStatement   MythStatement @relation(fields: [mythStatementId], references: [id])
   memberId        String
   member          Member        @relation(fields: [memberId], references: [id])
+  mythStatement   MythStatement @relation(fields: [mythStatementId], references: [id])
 
   @@unique([mythStatementId, memberId])
 }
 
 model LogoItem {
-  id          String   @id @default(uuid())
-  no          Int      @unique
+  id          String     @id @default(uuid())
+  no          Int        @unique
   level       String
   svg         String
   hint        String
-  options     String[] 
+  options     String[]
   answer      String
   explanation String
-  status      String   @default("pending")
-  revealed    Boolean  @default(false)
-  scored      Boolean  @default(false)
-  
+  status      String     @default("pending")
+  revealed    Boolean    @default(false)
+  scored      Boolean    @default(false)
   votes       LogoVote[]
 }
 
 model LogoVote {
-  id          String   @id @default(uuid())
-  vote        String
-  logoItemId  String
-  logoItem    LogoItem @relation(fields: [logoItemId], references: [id])
-  memberId    String
-  member      Member   @relation(fields: [memberId], references: [id])
+  id         String   @id @default(uuid())
+  vote       String
+  logoItemId String
+  memberId   String
+  logoItem   LogoItem @relation(fields: [logoItemId], references: [id])
+  member     Member   @relation(fields: [memberId], references: [id])
 
   @@unique([logoItemId, memberId])
 }
 
 model ConnectionPuzzle {
-  id                 String   @id @default(uuid())
-  no                 Int      @unique
+  id                 String               @id @default(uuid())
+  no                 Int                  @unique
   title              String
-  status             String   @default("pending")
-  revealedCategories String[] 
-  
+  status             String               @default("pending")
+  revealedCategories String[]
   categories         ConnectionCategory[]
 }
 
@@ -116,16 +110,15 @@ model ConnectionCategory {
   words              String[]
   connectionPuzzleId String
   connectionPuzzle   ConnectionPuzzle @relation(fields: [connectionPuzzleId], references: [id])
-  
   solvedBy           SolvedCategory[]
 }
 
 model SolvedCategory {
   id                   String             @id @default(uuid())
   memberId             String
-  member               Member             @relation(fields: [memberId], references: [id])
   connectionCategoryId String
   connectionCategory   ConnectionCategory @relation(fields: [connectionCategoryId], references: [id])
+  member               Member             @relation(fields: [memberId], references: [id])
 
   @@unique([memberId, connectionCategoryId])
 }

@@ -1,5 +1,5 @@
 {
-  "phase": "logo",
+  "phase": "connection",
   "members": {
     "m-msjy3a4x-0tp4pq": {
       "id": "m-msjy3a4x-0tp4pq",
@@ -225,11 +225,9 @@
       "id": "m-msyi4fow-hzv3rf",
       "name": "Gokila",
       "team": "3dots",
-      "points": 46,
+      "points": 100,
       "quizScore": 0,
-      "itemsWon": [
-        "item-7"
-      ],
+      "itemsWon": [],
       "isAdmin": false,
       "connected": false
     },
@@ -242,6 +240,66 @@
       "itemsWon": [],
       "isAdmin": false,
       "connected": false
+    },
+    "m-mszldiug-w0xxer": {
+      "id": "m-mszldiug-w0xxer",
+      "name": "Priya",
+      "team": "3dots",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszleioh-ylivqm": {
+      "id": "m-mszleioh-ylivqm",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxhn-8mlxmk": {
+      "id": "m-mszmyxhn-8mlxmk",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxig-9hdevg": {
+      "id": "m-mszmyxig-9hdevg",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxiq-bt8g7o": {
+      "id": "m-mszmyxiq-bt8g7o",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msznkn9u-k6zc5h": {
+      "id": "m-msznkn9u-k6zc5h",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": true
     }
   },
   "auction": {
@@ -265,8 +323,8 @@
         "name": "Ability to say \"No\" to 5 meetings without guilt",
         "why": "Protects your time",
         "status": "pending",
-        "currentBid": 6,
-        "currentBidderId": "m-msy9hor2-axyrfo",
+        "currentBid": 0,
+        "currentBidderId": null,
         "winnerId": null,
         "winningBid": 0,
         "reason": ""
@@ -324,11 +382,11 @@
         "no": 7,
         "name": "Remove all notifications from your phone & laptop",
         "why": "Reduces distractions",
-        "status": "sold",
-        "currentBid": 54,
-        "currentBidderId": "m-msyi4fow-hzv3rf",
-        "winnerId": "m-msyi4fow-hzv3rf",
-        "winningBid": 54,
+        "status": "pending",
+        "currentBid": 0,
+        "currentBidderId": null,
+        "winnerId": null,
+        "winningBid": 0,
         "reason": ""
       },
       {
@@ -1750,7 +1808,9 @@
         "status": "active",
         "revealedCategories": [
           "POPULAR PROGRAMMING LANGUAGES",
-          "TYPES OF NETWORK CONNECTIONS"
+          "TYPES OF NETWORK CONNECTIONS",
+          "WORDS THAT MEAN \"TO FIX OR REPAIR\"",
+          "CONTAINER TYPES"
         ],
         "solvedByMember": {}
       },

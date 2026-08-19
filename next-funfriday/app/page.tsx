@@ -11,6 +11,12 @@ import ScoreBoard from './components/ScoreBoard';
 import PeopleView from './components/PeopleView';
 import { useGameState } from '../hooks/useGameState';
 import { SOCKET_EVENTS } from '../constants/events';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { Tag, Brain, Palette, Puzzle, Users, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
   const {
@@ -56,27 +62,31 @@ export default function Home() {
       />
 
       {role === 'admin' && (
-        <div className="tabs" id="admin-tabs">
-          <div className={`tab ${adminTab === 'auction' ? 'active' : ''}`} onClick={() => setAdminTab('auction')}>🏷️ Auction</div>
-          <div className={`tab ${adminTab === 'myth' ? 'active' : ''}`} onClick={() => setAdminTab('myth')}>🧠 Myth Buster</div>
-          <div className={`tab ${adminTab === 'logo' ? 'active' : ''}`} onClick={() => setAdminTab('logo')}>🎨 Logo Finder</div>
-          <div className={`tab ${adminTab === 'connection' ? 'active' : ''}`} onClick={() => setAdminTab('connection')}>🧩 Connection</div>
-          <div className={`tab ${adminTab === 'people' ? 'active' : ''}`} onClick={() => setAdminTab('people')}>👥 People</div>
-        </div>
+        <Tabs value={adminTab} onValueChange={setAdminTab} className="w-full mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto gap-2 bg-card/50 p-2 rounded-xl border border-border/50 shadow-sm">
+            <TabsTrigger value="auction" className="gap-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white"><Tag className="w-4 h-4" /> Auction</TabsTrigger>
+            <TabsTrigger value="myth" className="gap-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white"><Brain className="w-4 h-4" /> Myth Buster</TabsTrigger>
+            <TabsTrigger value="logo" className="gap-2 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white"><Palette className="w-4 h-4" /> Logo Finder</TabsTrigger>
+            <TabsTrigger value="connection" className="gap-2 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white"><Puzzle className="w-4 h-4" /> Connection</TabsTrigger>
+            <TabsTrigger value="people" className="gap-2 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"><Users className="w-4 h-4" /> People</TabsTrigger>
+          </TabsList>
+        </Tabs>
       )}
 
       {role === 'admin' && (
-        <div className="card flex-between" style={{ marginBottom: '16px' }}>
-          <div><b>Phase:</b> {gameState.phase}</div>
-          <div className="row">
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'lobby' })}>Lobby</button>
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'auction' })}>Auction</button>
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'myth' })}>Myth Buster</button>
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'logo' })}>Logo Finder</button>
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'connection' })}>Connection</button>
-            <button className="ghost small" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'results' })}>Results</button>
-          </div>
-        </div>
+        <Card className="mb-6 border-indigo-500/20 shadow-sm bg-card/50">
+          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+            <div className="font-medium"><b>Phase:</b> <span className="text-indigo-400 capitalize">{gameState.phase}</span></div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'lobby' })}>Lobby</Button>
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'auction' })}>Auction</Button>
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'myth' })}>Myth Buster</Button>
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'logo' })}>Logo Finder</Button>
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'connection' })}>Connection</Button>
+              <Button variant="outline" size="sm" onClick={() => socket.emit(SOCKET_EVENTS.ADMIN_SET_PHASE, { phase: 'results' })}>Results</Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* --- Phase Routing --- */}
@@ -85,11 +95,11 @@ export default function Home() {
           role={role}
           auction={gameState.auction}
           memberPoints={you?.points}
-          onBid={(amount) => socket.emit(SOCKET_EVENTS.AUCTION_BID, { amount }, (res: { ok: boolean; error?: string }) => { if (!res.ok) alert(res.error); })}
+          onBid={(amount) => socket.emit(SOCKET_EVENTS.AUCTION_BID, { amount }, (res: { ok: boolean; error?: string }) => { if (!res.ok) toast.error(res.error); else toast.success('Bid placed!'); })}
           onOpenItem={(itemId) => socket.emit(SOCKET_EVENTS.AUCTION_OPEN, { itemId })}
           onSell={() => socket.emit(SOCKET_EVENTS.AUCTION_SELL)}
           onCancel={() => socket.emit(SOCKET_EVENTS.AUCTION_CANCEL)}
-          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET)}
+          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET, { what: 'auction' })}
         />
       )}
 
@@ -98,10 +108,10 @@ export default function Home() {
           role={role}
           myth={gameState.myth}
           memberId={memberId}
-          onVote={(vote) => socket.emit(SOCKET_EVENTS.MYTH_VOTE, { vote }, (res: { ok: boolean; error?: string }) => { if (!res.ok) alert(res.error); })}
+          onVote={(vote) => socket.emit(SOCKET_EVENTS.MYTH_VOTE, { vote }, (res: { ok: boolean; error?: string }) => { if (!res.ok) toast.error(res.error); else toast.success('Vote recorded!'); })}
           onOpen={(mythId) => socket.emit(SOCKET_EVENTS.MYTH_OPEN, { mythId })}
           onReveal={() => socket.emit(SOCKET_EVENTS.MYTH_REVEAL)}
-          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET)}
+          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET, { what: 'myth' })}
         />
       )}
 
@@ -110,10 +120,10 @@ export default function Home() {
           role={role}
           logo={gameState.logo}
           memberId={memberId}
-          onVote={(vote) => socket.emit(SOCKET_EVENTS.LOGO_VOTE, { vote }, (res: { ok: boolean; error?: string }) => { if (!res.ok) alert(res.error); })}
+          onVote={(vote) => socket.emit(SOCKET_EVENTS.LOGO_VOTE, { vote }, (res: { ok: boolean; error?: string }) => { if (!res.ok) toast.error(res.error); else toast.success('Guess submitted!'); })}
           onOpen={(logoId) => socket.emit(SOCKET_EVENTS.LOGO_OPEN, { logoId })}
           onReveal={() => socket.emit(SOCKET_EVENTS.LOGO_REVEAL)}
-          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET)}
+          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET, { what: 'logo' })}
         />
       )}
 
@@ -124,16 +134,16 @@ export default function Home() {
           memberId={memberId}
           onSubmit={(words) => socket.emit(SOCKET_EVENTS.CONNECTION_SUBMIT, { words }, (res: { ok: boolean; matched?: boolean; oneAway?: boolean; category?: string; error?: string }) => {
             if (res.ok) {
-              if (res.matched) alert(`🎉 Group solved: ${res.category}! (+20 pts)`);
-              else if (res.oneAway) alert('💡 One away! (3 of 4 match a category)');
-              else alert('❌ Not quite, try another combination.');
+              if (res.matched) toast.success(`🎉 Group solved: ${res.category}! (+20 pts)`);
+              else if (res.oneAway) toast.warning('💡 One away! (3 of 4 match a category)');
+              else toast.error('❌ Not quite, try another combination.');
             } else {
-              alert(res.error || 'Submission failed.');
+              toast.error(res.error || 'Submission failed.');
             }
           })}
           onOpen={(puzzleId) => socket.emit(SOCKET_EVENTS.CONNECTION_OPEN, { puzzleId })}
           onRevealCategory={(categoryName) => socket.emit(SOCKET_EVENTS.CONNECTION_REVEAL_GROUP, { categoryName })}
-          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET)}
+          onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET, { what: 'connection' })}
         />
       )}
 
@@ -146,39 +156,52 @@ export default function Home() {
       )}
 
       {role === 'member' && gameState.phase === 'lobby' && (
-        <div className="card empty">🛋️ Hang tight! The facilitator will start the next game shortly.</div>
+        <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
+          <CardContent className="pt-6 text-muted-foreground text-lg">
+            🛋️ Hang tight! The facilitator will start the next game shortly.
+          </CardContent>
+        </Card>
       )}
 
       {/* --- Scoreboard & Winnings --- */}
       {role === 'admin' && (
-        <div style={{ marginTop: '16px' }}>
+        <div className="mt-6">
           <ScoreBoard members={gameState.members} />
         </div>
       )}
 
       {role === 'member' && you?.wonItems?.length > 0 && (
-        <div className="card" style={{ marginTop: '16px' }}>
-          <h2>🛍️ Your winnings</h2>
-          {you.wonItems.map((itemNo: number) => {
-            const item = gameState.auction.items.find((i) => i.no === itemNo);
-            return (
-              <div key={itemNo} className="item-tile" style={{ marginBottom: '8px' }}>
-                <div className="t-name">✅ {item?.name}</div>
-                <div className="row">
-                  <input
-                    className="grow"
-                    type="text"
-                    maxLength={240}
-                    placeholder="Why do you want this? (optional)"
-                    defaultValue={item?.reason || ''}
-                    onBlur={(e) => socket.emit(SOCKET_EVENTS.AUCTION_REASON, { itemId: itemNo, reason: e.target.value })}
-                  />
-                  <button className="secondary small">Saved automatically</button>
+        <Card className="mt-6 border-indigo-500/20 shadow-lg bg-card/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Tag className="w-5 h-5 text-indigo-400" /> Your winnings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {you.wonItems.map((itemNo: number) => {
+              const item = gameState.auction.items.find((i) => i.no === itemNo);
+              return (
+                <div key={itemNo} className="p-4 rounded-xl border border-border/50 bg-background/50 space-y-3">
+                  <div className="font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> {item?.name}</div>
+                  <div className="flex flex-wrap sm:flex-nowrap gap-3">
+                    <Input
+                      className="flex-1 bg-background"
+                      type="text"
+                      maxLength={240}
+                      placeholder="Why do you want this? (optional)"
+                      defaultValue={item?.reason || ''}
+                      onBlur={(e) => {
+                        socket.emit(SOCKET_EVENTS.AUCTION_REASON, { itemId: itemNo, reason: e.target.value });
+                        toast.success('Reason saved automatically');
+                      }}
+                    />
+                    <Button variant="secondary" size="sm" disabled className="opacity-70">Saved automatically</Button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

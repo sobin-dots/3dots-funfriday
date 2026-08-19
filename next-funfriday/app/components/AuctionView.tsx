@@ -1,5 +1,11 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tag, RotateCcw, CheckCircle2, XCircle, Coins } from 'lucide-react';
+
 interface AuctionItem {
     id: string;
     no: number;
@@ -43,143 +49,176 @@ export default function AuctionView({
 
     if (role === 'member') {
         if (!activeItem) {
-            return <div className="card empty">🏷️ Auction is open. Waiting for the facilitator to put up the next item…</div>;
+            return (
+                <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
+                    <CardContent className="pt-6 text-muted-foreground text-lg flex flex-col items-center gap-3">
+                        <Tag className="w-8 h-8 text-indigo-400 opacity-50" />
+                        Auction is open. Waiting for the facilitator to put up the next item…
+                    </CardContent>
+                </Card>
+            );
         }
 
         const canBid = activeItem.status === 'active';
 
         return (
-            <div className="card">
-                <div className="bigitem">
-                    <div className="no">ITEM #{activeItem.no}</div>
-                    <div className="name">{activeItem.name}</div>
-                    <div className="why">{activeItem.why}</div>
-                    <div className="bid-display">{activeItem.currentBid} pts</div>
-                    <div className="bid-by">
-                        {activeItem.currentBidderId ? 'Top bid placed' : 'No bids yet — start it off!'}
+            <Card className="border-indigo-500/20 shadow-lg bg-card/50">
+                <CardContent className="p-6">
+                    <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-8 text-center shadow-inner">
+                        <div className="text-indigo-300 font-bold tracking-widest text-sm mb-2">ITEM #{activeItem.no}</div>
+                        <div className="text-3xl md:text-4xl font-extrabold text-white mb-2">{activeItem.name}</div>
+                        <div className="text-yellow-400 italic mb-6">{activeItem.why}</div>
+                        <div className="text-5xl md:text-6xl font-black text-white mb-2 drop-shadow-md">{activeItem.currentBid} <span className="text-2xl text-indigo-300">pts</span></div>
+                        <div className="text-muted-foreground font-medium">
+                            {activeItem.currentBidderId ? '🔥 Top bid placed' : 'No bids yet — start it off!'}
+                        </div>
                     </div>
-                </div>
 
-                {canBid ? (
-                    <div style={{ marginTop: '16px' }}>
-                        <div className="row">
-                            <input
-                                className="grow"
-                                id="bid-amount"
-                                type="number"
-                                min={activeItem.currentBid + 1}
-                                max={memberPoints}
-                                placeholder={`Your bid (max ${memberPoints})`}
-                            />
-                            <button id="bid-send" onClick={() => {
-                                const val = (document.getElementById('bid-amount') as HTMLInputElement).value;
-                                if (val && onBid) onBid(Number(val));
-                            }}>
-                                Place bid
-                            </button>
+                    {canBid ? (
+                        <div className="mt-6 space-y-4">
+                            <div className="flex flex-wrap sm:flex-nowrap gap-3">
+                                <Input
+                                    className="flex-1 text-lg py-6 bg-background/50 border-indigo-500/30 focus-visible:ring-indigo-500"
+                                    id="bid-amount"
+                                    type="number"
+                                    min={activeItem.currentBid + 1}
+                                    max={memberPoints}
+                                    placeholder={`Your bid (max ${memberPoints})`}
+                                />
+                                <Button size="lg" className="py-6 px-8 text-lg font-bold bg-indigo-600 hover:bg-indigo-700" onClick={() => {
+                                    const val = (document.getElementById('bid-amount') as HTMLInputElement).value;
+                                    if (val && onBid) onBid(Number(val));
+                                }}>
+                                    Place bid
+                                </Button>
+                            </div>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {[5, 10, 20].map((step) => {
+                                    const nextBid = activeItem.currentBid + step;
+                                    if (nextBid <= memberPoints) {
+                                        return (
+                                            <Button
+                                                key={step}
+                                                variant="outline"
+                                                className="border-indigo-500/30 hover:bg-indigo-500/20"
+                                                onClick={() => onBid && onBid(nextBid)}
+                                            >
+                                                +{step} → {nextBid}
+                                            </Button>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                                {memberPoints > activeItem.currentBid && (
+                                    <Button
+                                        variant="destructive"
+                                        className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30"
+                                        onClick={() => onBid && onBid(memberPoints)}
+                                    >
+                                        All in ({memberPoints})
+                                    </Button>
+                                )}
+                            </div>
+                            <p className="text-center text-muted-foreground text-sm">
+                                You have <b className="text-white">{memberPoints}</b> points to spend.
+                            </p>
                         </div>
-                        <div className="quickbids">
-                            {[5, 10, 20].map((step) => {
-                                const nextBid = activeItem.currentBid + step;
-                                if (nextBid <= memberPoints) {
-                                    return (
-                                        <button
-                                            key={step}
-                                            className="secondary small quickbid"
-                                            onClick={() => onBid && onBid(nextBid)}
-                                        >
-                                            +{step} → {nextBid}
-                                        </button>
-                                    );
-                                }
-                                return null;
-                            })}
-                            {memberPoints > activeItem.currentBid && (
-                                <button
-                                    className="warn small quickbid"
-                                    onClick={() => onBid && onBid(memberPoints)}
-                                >
-                                    All in ({memberPoints})
-                                </button>
-                            )}
+                    ) : (
+                        <div className="mt-6 text-center text-muted-foreground p-4 bg-background/30 rounded-xl border border-border/50">
+                            This item is closed.
                         </div>
-                        <p className="muted center" style={{ marginTop: '8px' }}>
-                            You have <b>{memberPoints}</b> points to spend.
-                        </p>
-                    </div>
-                ) : (
-                    <p className="empty">This item is closed.</p>
-                )}
-            </div>
+                    )}
+                </CardContent>
+            </Card>
         );
     }
 
     // Admin View
     return (
-        <>
+        <div className="space-y-6">
             {activeItem && (
-                <div className="card">
-                    <h2>🔴 Live now — Item #{activeItem.no}</h2>
-                    <div className="bigitem">
-                        <div className="name">{activeItem.name}</div>
-                        <div className="why">{activeItem.why}</div>
-                        <div className="bid-display">{activeItem.currentBid} pts</div>
-                        <div className="bid-by">
-                            {activeItem.currentBidderId ? 'Top bid placed' : 'No bids yet'}
+                <Card className="border-red-500/30 shadow-lg bg-card/50">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-red-400">
+                            <span className="relative flex h-3 w-3 mr-1">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                            Live now — Item #{activeItem.no}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl p-6 text-center shadow-inner mb-4">
+                            <div className="text-2xl font-extrabold text-white mb-1">{activeItem.name}</div>
+                            <div className="text-yellow-400 italic mb-4">{activeItem.why}</div>
+                            <div className="text-4xl font-black text-white mb-1">{activeItem.currentBid} <span className="text-xl text-indigo-300">pts</span></div>
+                            <div className="text-muted-foreground text-sm">
+                                {activeItem.currentBidderId ? '🔥 Top bid placed' : 'No bids yet'}
+                            </div>
                         </div>
-                    </div>
-                    <div className="row" style={{ marginTop: '14px' }}>
-                        <button
-                            className="good grow"
-                            disabled={!activeItem.currentBidderId}
-                            onClick={onSell}
-                        >
-                            💰 Sell ({activeItem.currentBid})
-                        </button>
-                        <button className="bad" onClick={onCancel}>
-                            Cancel item
-                        </button>
-                    </div>
-                </div>
+                        <div className="flex flex-wrap sm:flex-nowrap gap-3">
+                            <Button
+                                size="lg"
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                                disabled={!activeItem.currentBidderId}
+                                onClick={onSell}
+                            >
+                                <Coins className="w-5 h-5 mr-2" /> Sell ({activeItem.currentBid})
+                            </Button>
+                            <Button size="lg" variant="destructive" onClick={onCancel}>
+                                <XCircle className="w-5 h-5 mr-2" /> Cancel item
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             )}
 
-            <div className="card">
-                <div className="flex-between">
-                    <h2>🏷️ Auction items</h2>
-                    <button className="bad small" onClick={onReset}>
-                        Reset auction
-                    </button>
-                </div>
-                <div className="item-list">
-                    {auction.items.map((i) => (
-                        <div key={i.id} className={`item-tile ${i.status}`}>
-                            <div className="flex-between">
-                                <span className="t-name">#{i.no}</span>
-                                <span className={`badge ${i.status}`}>{i.status}</span>
-                            </div>
-                            <div className="t-name">{i.name}</div>
-                            <div className="t-why">{i.why}</div>
-                            {i.status === 'sold' ? (
-                                <div className="muted">
-                                    ✅ Won for <b>{i.winningBid}</b> pts
-                                    {i.reason && (
-                                        <>
-                                            <br />💬 &quot;{i.reason}&quot;
-                                        </>
+            <Card className="border-indigo-500/20 shadow-sm bg-card/50">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                        <Tag className="w-5 h-5 text-indigo-400" /> Auction items
+                    </CardTitle>
+                    <Button variant="destructive" size="sm" onClick={onReset} className="h-8">
+                        <RotateCcw className="w-4 h-4 mr-1" /> Reset auction
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        {auction.items.map((i) => (
+                            <div key={i.id} className={`flex flex-col gap-2 p-4 rounded-xl border ${i.status === 'active' ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-border/50 bg-background/50'} ${i.status === 'sold' ? 'opacity-60' : ''}`}>
+                                <div className="flex items-center justify-between">
+                                    <span className="font-bold text-muted-foreground">#{i.no}</span>
+                                    <Badge variant={i.status === 'active' ? 'default' : i.status === 'sold' ? 'secondary' : 'outline'} className={i.status === 'active' ? 'bg-indigo-500' : i.status === 'sold' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                        {i.status}
+                                    </Badge>
+                                </div>
+                                <div className="font-bold text-lg leading-tight">{i.name}</div>
+                                <div className="text-sm text-muted-foreground italic flex-1">{i.why}</div>
+
+                                <div className="pt-2 mt-auto border-t border-border/50">
+                                    {i.status === 'sold' ? (
+                                        <div className="text-sm text-emerald-400">
+                                            <div className="flex items-center gap-1 font-bold"><CheckCircle2 className="w-4 h-4" /> Won for {i.winningBid} pts</div>
+                                            {i.reason && (
+                                                <div className="mt-1 text-muted-foreground italic text-xs">&quot;{i.reason}&quot;</div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            variant={i.status === 'active' ? 'secondary' : 'outline'}
+                                            size="sm"
+                                            className="w-full"
+                                            onClick={() => onOpenItem && onOpenItem(i.no)}
+                                        >
+                                            {i.status === 'active' ? 'Re-open' : 'Open for bidding'}
+                                        </Button>
                                     )}
                                 </div>
-                            ) : (
-                                <button
-                                    className="small"
-                                    onClick={() => onOpenItem && onOpenItem(i.no)}
-                                >
-                                    {i.status === 'active' ? 'Re-open' : 'Open for bidding'}
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     );
 }

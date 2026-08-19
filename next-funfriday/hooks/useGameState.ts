@@ -5,7 +5,7 @@ import { SOCKET_EVENTS } from '../constants/events';
 
 let socket: Socket;
 
-export function useGameState() {
+export function useGameState(isSpectator: boolean = false) {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [role, setRole] = useState<'guest' | 'member' | 'admin'>('guest');
     const [memberId, setMemberId] = useState<string>('');
@@ -14,6 +14,11 @@ export function useGameState() {
         socket = io();
 
         socket.on(SOCKET_EVENTS.CONNECT, () => {
+            if (isSpectator) {
+                socket.emit(SOCKET_EVENTS.SPECTATOR_JOIN);
+                return;
+            }
+
             const savedRole = localStorage.getItem('ff_role');
             if (savedRole === 'admin') {
                 const pass = sessionStorage.getItem('ff_adminPass');
@@ -46,7 +51,7 @@ export function useGameState() {
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [isSpectator]);
 
     const handleJoin = (name: string, team: string) => {
         if (!name.trim()) return alert('Please enter your name.');
