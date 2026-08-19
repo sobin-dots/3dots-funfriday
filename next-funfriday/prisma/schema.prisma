@@ -9,10 +9,12 @@ datasource db {
 model Member {
   id               String           @id @default(uuid())
   name             String
+  email            String           @unique
+  password         String
+  role             String           @default("USER")
   team             String           @default("No team")
   points           Int              @default(100)
   quizScore        Int              @default(0)
-  isAdmin          Boolean          @default(false)
   connected        Boolean          @default(false)
   bids             AuctionBid[]
   wonItems         AuctionItem[]    @relation("WonItems")
