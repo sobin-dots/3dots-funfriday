@@ -159,7 +159,7 @@
       "quizScore": 0,
       "itemsWon": [],
       "isAdmin": false,
-      "connected": true
+      "connected": false
     },
     "m-msjyg6wb-kiyj84": {
       "id": "m-msjyg6wb-kiyj84",
@@ -200,6 +200,106 @@
       "itemsWon": [],
       "isAdmin": false,
       "connected": false
+    },
+    "m-msx4nry1-j23uqn": {
+      "id": "m-msx4nry1-j23uqn",
+      "name": "admin@3dots.co",
+      "team": "No team",
+      "points": 100,
+      "quizScore": 60,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msy9gzgf-bhlp7w": {
+      "id": "m-msy9gzgf-bhlp7w",
+      "name": "gokila",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msyi4fow-hzv3rf": {
+      "id": "m-msyi4fow-hzv3rf",
+      "name": "Gokila",
+      "team": "3dots",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msyikcfq-miw8fj": {
+      "id": "m-msyikcfq-miw8fj",
+      "name": "team",
+      "team": "3dots",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszldiug-w0xxer": {
+      "id": "m-mszldiug-w0xxer",
+      "name": "Priya",
+      "team": "3dots",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszleioh-ylivqm": {
+      "id": "m-mszleioh-ylivqm",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxhn-8mlxmk": {
+      "id": "m-mszmyxhn-8mlxmk",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxig-9hdevg": {
+      "id": "m-mszmyxig-9hdevg",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-mszmyxiq-bt8g7o": {
+      "id": "m-mszmyxiq-bt8g7o",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": false
+    },
+    "m-msznkn9u-k6zc5h": {
+      "id": "m-msznkn9u-k6zc5h",
+      "name": "Dharshini",
+      "team": "wizi",
+      "points": 100,
+      "quizScore": 0,
+      "itemsWon": [],
+      "isAdmin": false,
+      "connected": true
     }
   },
   "auction": {
@@ -328,7 +428,7 @@
     ]
   },
   "myth": {
-    "activeIndex": 0,
+    "activeIndex": 1,
     "statements": [
       {
         "id": "myth-1",
@@ -336,9 +436,9 @@
         "text": "3dots and Wizi Technologies are operating as competitors in 2026",
         "answer": "False",
         "explanation": "3dots & Wizi Technologies have joined forces in a strategic partnership!",
-        "status": "active",
-        "revealed": false,
-        "scored": false,
+        "status": "revealed",
+        "revealed": true,
+        "scored": true,
         "votes": {}
       },
       {
@@ -347,7 +447,7 @@
         "text": "Working longer hours makes you more productive",
         "answer": "False",
         "explanation": "Productivity drops after 6–7 hours due to fatigue.",
-        "status": "pending",
+        "status": "active",
         "revealed": false,
         "scored": false,
         "votes": {}
@@ -358,7 +458,7 @@
         "text": "Multitasking helps you get more work done",
         "answer": "False",
         "explanation": "It reduces efficiency by up to 40%.",
-        "status": "pending",
+        "status": "active",
         "revealed": false,
         "scored": false,
         "votes": {}
@@ -454,7 +554,7 @@
     ]
   },
   "logo": {
-    "activeIndex": 3,
+    "activeIndex": 2,
     "items": [
       {
         "id": "logo-1",
@@ -489,9 +589,9 @@
         ],
         "answer": "Starbucks",
         "explanation": "The 1971 original logo featured a brown twin-tailed siren emblem!",
-        "status": "pending",
-        "revealed": false,
-        "scored": false,
+        "status": "revealed",
+        "revealed": true,
+        "scored": true,
         "votes": {}
       },
       {
@@ -508,9 +608,9 @@
         ],
         "answer": "Pepsi",
         "explanation": "Caleb Bradham renamed it Pepsi-Cola in 1898 and used this ornate red script logo!",
-        "status": "pending",
-        "revealed": false,
-        "scored": false,
+        "status": "revealed",
+        "revealed": true,
+        "scored": true,
         "votes": {}
       },
       {
@@ -527,7 +627,7 @@
         ],
         "answer": "Twitter",
         "explanation": "Designed by Noah Glass in 2006, the original name was spelled \"twttr\" with a green slime font!",
-        "status": "active",
+        "status": "pending",
         "revealed": false,
         "scored": false,
         "votes": {}
@@ -1162,7 +1262,7 @@
     ]
   },
   "connection": {
-    "activeIndex": 2,
+    "activeIndex": 3,
     "puzzles": [
       {
         "id": "conn-1",
@@ -1536,7 +1636,7 @@
             ]
           }
         ],
-        "status": "active",
+        "status": "pending",
         "revealedCategories": [
           "POPULAR WEB BROWSERS",
           "THINGS YOU CAN \"RUN\"",
@@ -1651,6 +1751,11 @@
             "THINGS YOU CAN \"RUN\"",
             "DESIGN & COLOR GEMSTONES",
             "___ SHEET"
+          ],
+          "m-msx4nry1-j23uqn": [
+            "POPULAR WEB BROWSERS",
+            "THINGS YOU CAN \"RUN\"",
+            "___ SHEET"
           ]
         }
       },
@@ -1700,8 +1805,13 @@
             ]
           }
         ],
-        "status": "pending",
-        "revealedCategories": [],
+        "status": "active",
+        "revealedCategories": [
+          "POPULAR PROGRAMMING LANGUAGES",
+          "TYPES OF NETWORK CONNECTIONS",
+          "WORDS THAT MEAN \"TO FIX OR REPAIR\"",
+          "CONTAINER TYPES"
+        ],
         "solvedByMember": {}
       },
       {

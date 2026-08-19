@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#121820"/>
+  <circle cx="150" cy="150" r="125" fill="#1d2736" stroke="#e0e0e0" stroke-width="4"/>
+  <!-- Lion walking on arrow silhouette (1850 saw blade brand mark) -->
+  <path d="M 90 140 C 110 100 170 100 200 135 C 215 145 220 155 200 160 C 180 165 140 160 100 155 Z" fill="#ffffff"/>
+  <!-- Arrow beneath lion -->
+  <line x1="60" y1="170" x2="240" y2="170" stroke="#ffffff" stroke-width="5"/>
+  <polygon points="240,170 225,162 225,178" fill="#ffffff"/>
+  <text x="150" y="215" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="4" text-anchor="middle">STEEL SAW BLADES</text>
+  <text x="150" y="245" font-family="sans-serif" font-size="10" fill="#aaaaaa" text-anchor="middle">1850 LION ON ARROW EMBLEM</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <rect width="300" height="300" rx="16" fill="#121720"/>
+  <circle cx="150" cy="150" r="125" fill="#1b2330" stroke="#4a90e2" stroke-width="5"/>
+  <!-- Globe latitude longitude lines -->
+  <ellipse cx="150" cy="150" rx="110" ry="45" fill="none" stroke="#2c3e50" stroke-width="2"/>
+  <ellipse cx="150" cy="150" rx="45" ry="110" fill="none" stroke="#2c3e50" stroke-width="2"/>
+  <line x1="25" y1="150" x2="275" y2="150" stroke="#2c3e50" stroke-width="2"/>
+  <text x="150" y="130" font-family="'Arial Black', sans-serif" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="4" text-anchor="middle">RECORDING</text>
+  <text x="150" y="165" font-family="'Arial Black', sans-serif" font-size="24" font-weight="900" fill="#4a90e2" letter-spacing="4" text-anchor="middle">TABULATING</text>
+  <text x="150" y="195" font-family="'Arial Black', sans-serif" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="4" text-anchor="middle">COMPANY</text>
+  <text x="150" y="245" font-family="sans-serif" font-size="11" fill="#888888" text-anchor="middle">GLOBE EMBLEM (1924)</text>
+</svg>
