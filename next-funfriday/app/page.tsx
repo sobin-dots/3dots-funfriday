@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import LoginView from './components/LoginView';
 import TopBar from './components/TopBar';
 import AuctionView from './components/AuctionView';
 import MythBusterView from './components/MythBusterView';
@@ -24,8 +23,6 @@ export default function Home() {
     gameState,
     role,
     memberId,
-    handleJoin,
-    handleAdminLogin,
     handleLogout
   } = useGameState();
 
@@ -34,8 +31,8 @@ export default function Home() {
   // --- Render Helpers ---
   if (role === 'guest') {
     return (
-      <div className="wrap">
-        <LoginView onJoin={handleJoin} onAdminLogin={handleAdminLogin} />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Authenticating...</div>
       </div>
     );
   }

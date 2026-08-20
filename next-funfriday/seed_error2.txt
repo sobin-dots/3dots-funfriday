@@ -1,0 +1,37 @@
+Admin and GameState seeded
+Cleared old game data from DB
+Seeded 10 auction items
+PrismaClientKnownRequestError: 
+Invalid `prisma.mythStatement.create()` invocation in
+C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\prisma\seed.ts:86:34
+
+  83 // Seed Myth Statements
+  84 if (oldState.myth?.statements) {
+  85   for (const stmt of oldState.myth.statements) {
+→ 86     await prisma.mythStatement.create(
+Unique constraint failed on the fields: (`no`)
+    at Jr.handleRequestError (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\RequestHandler.ts:237:13)
+    at Jr.handleAndLogRequestError (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\RequestHandler.ts:183:12)
+    at Jr.request (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async a (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:1014:24)
+    at async main (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\prisma\seed.ts:86:7) {
+  code: 'P2002',
+  meta: {
+    modelName: 'MythStatement',
+    driverAdapterError: DriverAdapterError: UniqueConstraintViolation
+        at PrismaPgAdapter.onError (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\adapter-pg\dist\index.js:675:11)
+        at PrismaPgAdapter.performIO (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\adapter-pg\dist\index.js:670:12)
+        at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+        at async PrismaPgAdapter.queryRaw (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+        at async e.interpretNode (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:186:26)
+        at async e.interpretNode (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:213:41)
+        at async e.interpretNode (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:272:41)
+        at async e.run (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client-engine-runtime\src\interpreter\query-interpreter.ts:94:23)
+        at async e.execute (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\core\engines\client\LocalExecutor.ts:81:12)
+        at async Ut.request (C:\Users\Goku\Desktop\funfriday\3dots-funfriday\next-funfriday\node_modules\@prisma\client\src\runtime\core\engines\client\ClientEngine.ts:510:22) {
+      cause: [Object]
+    }
+  },
+  clientVersion: '7.9.1'
+}
