@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validations/auth';
-import { AuthService } from '@/services/auth.service';
+import { AuthService } from '../auth.service';
 import { AppError } from '@/lib/errors';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const result = loginSchema.safeParse(body);
+    const { success, data: reqData, error } = loginSchema.safeParse(body);
 
-    if (!result.success) {
+    if (!success) {
       return NextResponse.json(
-        { error: result.error.errors[0].message },
+        { error: error.errors.map((e: any) => e.message).join(', ') },
         { status: 400 }
       );
     }
 
-    const response = await AuthService.login(result.data);
+    const response = await AuthService.login(reqData);
     return NextResponse.json(response);
   } catch (error: any) {
     if (error instanceof AppError) {
