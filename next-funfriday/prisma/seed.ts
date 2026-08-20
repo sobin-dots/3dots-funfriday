@@ -3,6 +3,8 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
 import 'dotenv/config';
+import fs from 'fs';
+import path from 'path';
 
 const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
@@ -10,8 +12,9 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // 1. Seed Admin
   const adminEmail = 'admin@3dots.co';
-  const adminPassword = 'funfriday';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'funfriday';
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
   const admin = await prisma.member.upsert({
@@ -26,7 +29,19 @@ async function main() {
     },
   });
 
-  console.log('Admin seeded:', admin.email);
+  // 2. Seed Global GameState
+  await prisma.gameState.upsert({
+    where: { id: 'global' },
+    update: {},
+    create: {
+      id: 'global',
+      phase: 'lobby',
+    },
+  });
+
+  console.log('Admin and GameState seeded');
+
+
 }
 
 main()
