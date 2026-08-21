@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { signupSchema } from '@/lib/validations/auth';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../../../lib/services/auth.service';
 import { AppError } from '@/lib/errors';
 
 export async function POST(req: Request) {
