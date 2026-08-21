@@ -127,20 +127,21 @@ export default function ConnectionsGrid({
                     {unsolvedWords.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {unsolvedWords.map((word) => (
-                                <div
+                                <Button
                                     key={word}
-                                    className={`flex items-center justify-center min-h-[80px] p-2 text-center font-bold text-sm sm:text-base uppercase tracking-wide rounded-xl border-2 cursor-pointer select-none transition-all duration-200 ${selectedWords.includes(word) ? 'bg-blue-600 text-white border-blue-400 shadow-[0_4px_15px_rgba(37,99,235,0.4)] scale-[1.02]' : 'bg-background/80 border-border hover:border-blue-400 hover:bg-background'}`}
+                                    variant={selectedWords.includes(word) ? 'default' : 'outline'}
+                                    className={`min-h-[80px] h-auto p-2 text-center font-bold text-sm sm:text-base uppercase tracking-wide rounded-xl border-2 transition-all duration-200 whitespace-normal ${selectedWords.includes(word) ? 'bg-blue-600 text-white border-blue-400 shadow-[0_4px_15px_rgba(37,99,235,0.4)] scale-[1.02] hover:bg-blue-700' : 'bg-background/80 border-border hover:border-blue-400 hover:bg-background'}`}
                                     onClick={() => toggleWord(word)}
                                 >
                                     {word}
-                                </div>
+                                </Button>
                             ))}
                         </div>
                     ) : (
                         <div className="p-6 rounded-2xl border bg-emerald-500/10 border-emerald-500/50 text-center animate-in fade-in duration-500">
                             <div className="font-bold text-xl flex flex-col items-center justify-center gap-3 text-emerald-400">
                                 <CheckCircle2 className="w-12 h-12" />
-                                 Incredible! You solved all 4 categories!
+                                Incredible! You solved all 4 categories!
                             </div>
                             <p className="text-emerald-300 mt-2 font-medium">+100 Total Quiz Points!</p>
                         </div>
@@ -248,7 +249,7 @@ export default function ConnectionsGrid({
                                 </div>
                                 <div className="font-bold text-lg leading-tight">{pz.title}</div>
                                 <div className="text-sm text-muted-foreground italic flex-1">4 categories  16 words</div>
-                                
+
                                 <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
                                         variant={pz.status === 'active' ? 'secondary' : 'outline'}

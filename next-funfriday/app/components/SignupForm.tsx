@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { signupSchema, SignupFormInput } from '@/lib/validations/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 export default function SignupForm() {
     const router = useRouter();
@@ -50,9 +51,9 @@ export default function SignupForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label>
                     Name
-                </label>
+                </Label>
                 <Input
                     {...register('name')}
                     type="text"
@@ -62,9 +63,9 @@ export default function SignupForm() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label>
                     Email
-                </label>
+                </Label>
                 <Input
                     {...register('email')}
                     type="email"
@@ -74,9 +75,9 @@ export default function SignupForm() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label>
                     Team Name
-                </label>
+                </Label>
                 <Input
                     {...register('team')}
                     type="text"
@@ -86,22 +87,24 @@ export default function SignupForm() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label>
                     Password
-                </label>
+                </Label>
                 <div className="relative">
                     <Input
                         {...register('password')}
                         type={showPassword ? 'text' : 'password'}
                         className="pr-10"
                     />
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
                     >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                    </Button>
                 </div>
                 {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
