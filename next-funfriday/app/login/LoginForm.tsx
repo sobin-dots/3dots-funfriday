@@ -3,17 +3,14 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { loginSchema, LoginFormInput } from '@/lib/validations/auth';
+import { useLoginMutation } from '@/hooks/queries/useAuthQueries';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
 export default function LoginForm() {
-    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
 
     const {
@@ -24,27 +21,7 @@ export default function LoginForm() {
         resolver: zodResolver(loginSchema),
     });
 
-    const loginMutation = useMutation({
-        mutationFn: async (data: LoginFormInput) => {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || 'Failed to login');
-            return json;
-        },
-        onSuccess: (data) => {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            toast.success('Login successful!');
-            router.push('/dashboard');
-        },
-        onError: (error: Error) => {
-            toast.error(error.message);
-        },
-    });
+    const loginMutation = useLoginMutation();
 
     const onSubmit = (data: LoginFormInput) => {
         loginMutation.mutate(data);

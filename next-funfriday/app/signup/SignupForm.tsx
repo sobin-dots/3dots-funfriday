@@ -3,17 +3,14 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { signupSchema, SignupFormInput } from '@/lib/validations/auth';
+import { useSignupMutation } from '@/hooks/queries/useAuthQueries';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
 export default function SignupForm() {
-    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
 
     const {
@@ -24,25 +21,7 @@ export default function SignupForm() {
         resolver: zodResolver(signupSchema),
     });
 
-    const signupMutation = useMutation({
-        mutationFn: async (data: SignupFormInput) => {
-            const res = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || 'Failed to sign up');
-            return json;
-        },
-        onSuccess: () => {
-            toast.success('Account created successfully! Please log in.');
-            router.push('/login');
-        },
-        onError: (error: Error) => {
-            toast.error(error.message);
-        },
-    });
+    const signupMutation = useSignupMutation();
 
     const onSubmit = (data: SignupFormInput) => {
         signupMutation.mutate(data);
