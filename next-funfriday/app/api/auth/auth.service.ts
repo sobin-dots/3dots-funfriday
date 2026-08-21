@@ -5,8 +5,8 @@ import { LoginForm, SignupForm } from '@/lib/validations/auth';
 import { AuthenticationError, ConflictError } from '@/lib/errors';
 
 export class AuthService {
-    static async signup(reqData: SignupForm) {
-        const { name, email, password, team } = reqData;
+    static async signup(payload: SignupForm) {
+        const { name, email, password, team } = payload;
 
         const existingUser = await prisma.member.findUnique({
             where: { email },
@@ -31,8 +31,8 @@ export class AuthService {
         return { success: true, message: 'Account created successfully' };
     }
 
-    static async login(reqData: LoginForm) {
-        const { email, password } = reqData;
+    static async login(payload: LoginForm) {
+        const { email, password } = payload;
 
         const user = await prisma.member.findUnique({
             where: { email },

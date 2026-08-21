@@ -5,18 +5,18 @@ import { AppError } from '@/lib/errors';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { success, data: reqData, error } = loginSchema.safeParse(body);
+    const requestBody = await req.json();
+    const { success: isValidationSuccessful, data: payload, error: validationError } = loginSchema.safeParse(requestBody);
 
-    if (!success) {
+    if (!isValidationSuccessful) {
       return NextResponse.json(
-        { error: error.errors.map((e: any) => e.message).join(', ') },
+        { error: validationError.errors.map((validationIssue: any) => validationIssue.message).join(', ') },
         { status: 400 }
       );
     }
 
-    const response = await AuthService.login(reqData);
-    return NextResponse.json(response);
+    const loginResponse = await AuthService.login(payload);
+    return NextResponse.json(loginResponse);
   } catch (error: any) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
