@@ -39,7 +39,7 @@ export default function LoginForm() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             toast.success('Login successful!');
-            router.push('/');
+            router.push('/dashboard');
         },
         onError: (error: Error) => {
             toast.error(error.message);

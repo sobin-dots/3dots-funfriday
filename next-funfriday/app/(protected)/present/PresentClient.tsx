@@ -1,7 +1,7 @@
 'use client';
 
-import ScoreBoard from './ScoreBoard';
-import { useGameState } from '../../hooks/useGameState';
+import ScoreBoard from '@/components/shared/ScoreBoard';
+import { useGameState } from '../../../hooks/useGameState';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tag, Brain, Palette, Puzzle, Users, CheckCircle2, XCircle, Trophy } from 'lucide-react';
