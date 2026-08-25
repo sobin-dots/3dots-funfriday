@@ -12,5 +12,5 @@ export const signupSchema = z.object({
     team: z.string().min(1, 'Team name is required'),
 });
 
-export type LoginForm = z.infer<typeof loginSchema>;
-export type SignupForm = z.infer<typeof signupSchema>;
+export type LoginFormInput = z.infer<typeof loginSchema>;
+export type SignupFormInput = z.infer<typeof signupSchema>;
