@@ -43,6 +43,9 @@ export default function TopBar({
                             <MonitorPlay className="w-4 h-4" /> Projector
                         </Badge>
                     </a>
+                    <Button variant="ghost" size="sm" onClick={onLogout} className="h-7 px-3 text-xs font-bold text-white hover:bg-white/20 hover:text-white rounded-full">
+                        <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
+                    </Button>
                 </div>
             </div>
         );

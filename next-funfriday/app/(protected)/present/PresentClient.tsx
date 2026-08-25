@@ -1,12 +1,12 @@
 'use client';
 
-import ScoreBoard from '../components/ScoreBoard';
-import { useGameState } from '../../hooks/useGameState';
+import ScoreBoard from '@/components/shared/ScoreBoard';
+import { useGameState } from '../../../hooks/useGameState';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tag, Brain, Palette, Puzzle, Users, CheckCircle2, XCircle, Trophy } from 'lucide-react';
 
-export default function PresenterPage() {
+export default function PresentClient() {
     const { gameState } = useGameState(true);
 
     if (!gameState) {
@@ -22,11 +22,11 @@ export default function PresenterPage() {
         );
     }
 
-    const onlineCount = Object.values(gameState.members).filter((m) => m.connected).length;
+    const onlineCount = Object.values(gameState.members).filter((m: any) => m.connected).length;
 
     const renderAuction = () => {
-        const item = gameState.auction.items.find((i: { no: number }) => i.no === gameState.auction.activeItemId);
-        if (!item) {
+        const activeItem = gameState.auction.items.find((i: { no: number }) => i.no === gameState.auction.activeItemId);
+        if (!activeItem) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-indigo-500/30 bg-indigo-500/5">
                     <CardContent className="pt-6 text-muted-foreground text-3xl flex flex-col items-center gap-6">
@@ -42,16 +42,16 @@ export default function PresenterPage() {
         return (
             <div className="space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="flex items-center justify-center gap-4 text-4xl font-black text-indigo-400 drop-shadow-md">
-                    <Tag className="w-10 h-10" /> Productivity Auction  Item #{item.no}
+                    <Tag className="w-10 h-10" /> Productivity Auction  Item #{activeItem.no}
                 </div>
                 <Card className="border-indigo-500/30 shadow-2xl bg-card/80 backdrop-blur-xl overflow-hidden">
                     <CardContent className="p-0">
                         <div className="bg-gradient-to-br from-indigo-900/60 to-purple-900/60 p-16 text-center">
-                            <div className="text-6xl md:text-7xl font-extrabold text-white mb-6 leading-tight">{item.name}</div>
-                            <div className="text-3xl text-yellow-400 italic mb-12">&quot;{item.why}&quot;</div>
-                            <div className="text-8xl md:text-9xl font-black text-white mb-6 drop-shadow-2xl">{item.currentBid} <span className="text-4xl text-indigo-300">pts</span></div>
+                            <div className="text-6xl md:text-7xl font-extrabold text-white mb-6 leading-tight">{activeItem.name}</div>
+                            <div className="text-3xl text-yellow-400 italic mb-12">&quot;{activeItem.why}&quot;</div>
+                            <div className="text-8xl md:text-9xl font-black text-white mb-6 drop-shadow-2xl">{activeItem.currentBid} <span className="text-4xl text-indigo-300">pts</span></div>
                             <div className="text-2xl text-indigo-200 font-medium bg-indigo-950/50 inline-block px-8 py-4 rounded-full border border-indigo-500/30">
-                                {item.currentBidderId ? ' Top bid placed' : 'Waiting for the first bid'}
+                                {activeItem.currentBidderId ? ' Top bid placed' : 'Waiting for the first bid'}
                             </div>
                         </div>
                     </CardContent>
@@ -61,8 +61,8 @@ export default function PresenterPage() {
     };
 
     const renderMyth = () => {
-        const st = gameState.myth.statements.find((s: { no: number }) => s.no === gameState.myth.activeStatementId);
-        if (!st) {
+        const activeStatement = gameState.myth.statements.find((s: { no: number }) => s.no === gameState.myth.activeStatementId);
+        if (!activeStatement) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-purple-500/30 bg-purple-500/5">
                     <CardContent className="pt-6 text-muted-foreground text-3xl flex flex-col items-center gap-6">
@@ -76,46 +76,46 @@ export default function PresenterPage() {
             );
         }
 
-        const trueVotes = Object.values(st.votes as Record<string, string>).filter(v => v === 'True').length;
-        const falseVotes = Object.values(st.votes as Record<string, string>).filter(v => v === 'False').length;
-        const total = trueVotes + falseVotes;
-        const tp = total ? Math.round((trueVotes / total) * 100) : 0;
-        const fp = total ? 100 - tp : 0;
+        const trueVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(v => v === 'True').length;
+        const falseVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(v => v === 'False').length;
+        const totalVotes = trueVotesCount + falseVotesCount;
+        const truePercentage = totalVotes ? Math.round((trueVotesCount / totalVotes) * 100) : 0;
+        const falsePercentage = totalVotes ? 100 - truePercentage : 0;
 
         return (
             <div className="space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="flex items-center justify-center gap-4 text-4xl font-black text-purple-400 drop-shadow-md">
-                    <Brain className="w-10 h-10" /> Myth Buster  Statement #{st.no}
+                    <Brain className="w-10 h-10" /> Myth Buster  Statement #{activeStatement.no}
                 </div>
                 <Card className="border-purple-500/30 shadow-2xl bg-card/80 backdrop-blur-xl">
                     <CardContent className="p-12 space-y-12">
                         <div className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/30 rounded-3xl p-12 shadow-inner text-center">
-                            <div className="text-5xl md:text-6xl font-bold text-white leading-tight">{st.text}</div>
+                            <div className="text-5xl md:text-6xl font-bold text-white leading-tight">{activeStatement.text}</div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex h-16 rounded-full overflow-hidden border-2 border-border/50 shadow-inner bg-background/50">
-                                <div className="flex items-center justify-center bg-emerald-500 text-emerald-950 font-black text-2xl transition-all duration-1000 ease-out" style={{ width: `${tp}%` }}>
-                                    {trueVotes > 0 ? `TRUE ${tp}%` : ''}
+                                <div className="flex items-center justify-center bg-emerald-500 text-emerald-950 font-black text-2xl transition-all duration-1000 ease-out" style={{ width: `${truePercentage}%` }}>
+                                    {trueVotesCount > 0 ? `TRUE ${truePercentage}%` : ''}
                                 </div>
-                                <div className="flex items-center justify-center bg-red-500 text-red-950 font-black text-2xl transition-all duration-1000 ease-out" style={{ width: `${fp}%` }}>
-                                    {falseVotes > 0 ? `FALSE ${fp}%` : ''}
+                                <div className="flex items-center justify-center bg-red-500 text-red-950 font-black text-2xl transition-all duration-1000 ease-out" style={{ width: `${falsePercentage}%` }}>
+                                    {falseVotesCount > 0 ? `FALSE ${falsePercentage}%` : ''}
                                 </div>
                             </div>
                             <div className="flex justify-between px-4 text-2xl font-bold">
-                                <span className="text-emerald-400 flex items-center gap-2"><CheckCircle2 className="w-8 h-8" /> {trueVotes} votes</span>
-                                <span className="text-muted-foreground">{total} total votes</span>
-                                <span className="text-red-400 flex items-center gap-2">{falseVotes} votes <XCircle className="w-8 h-8" /></span>
+                                <span className="text-emerald-400 flex items-center gap-2"><CheckCircle2 className="w-8 h-8" /> {trueVotesCount} votes</span>
+                                <span className="text-muted-foreground">{totalVotes} total votes</span>
+                                <span className="text-red-400 flex items-center gap-2">{falseVotesCount} votes <XCircle className="w-8 h-8" /></span>
                             </div>
                         </div>
 
-                        {st.revealed && (
-                            <div className={`p-10 rounded-3xl border-4 animate-in slide-in-from-bottom-10 fade-in duration-700 ${st.answer === 'True' ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-red-500/10 border-red-500/50'}`}>
-                                <div className={`font-black text-5xl mb-6 flex items-center justify-center gap-4 ${st.answer === 'True' ? 'text-emerald-400' : 'text-red-400'}`}>
-                                    {st.answer === 'True' ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
-                                    Answer: {st.answer.toUpperCase()}
+                        {activeStatement.revealed && (
+                            <div className={`p-10 rounded-3xl border-4 animate-in slide-in-from-bottom-10 fade-in duration-700 ${activeStatement.answer === 'True' ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-red-500/10 border-red-500/50'}`}>
+                                <div className={`font-black text-5xl mb-6 flex items-center justify-center gap-4 ${activeStatement.answer === 'True' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                    {activeStatement.answer === 'True' ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
+                                    Answer: {activeStatement.answer.toUpperCase()}
                                 </div>
-                                <div className="text-3xl text-muted-foreground leading-relaxed text-center">{st.explanation}</div>
+                                <div className="text-3xl text-muted-foreground leading-relaxed text-center">{activeStatement.explanation}</div>
                             </div>
                         )}
                     </CardContent>
@@ -125,8 +125,8 @@ export default function PresenterPage() {
     };
 
     const renderLogo = () => {
-        const l = gameState.logo.items.find((i: { no: number }) => i.no === gameState.logo.activeLogoId);
-        if (!l) {
+        const activeLogo = gameState.logo.items.find((i: { no: number }) => i.no === gameState.logo.activeLogoId);
+        if (!activeLogo) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-pink-500/30 bg-pink-500/5">
                     <CardContent className="pt-6 text-muted-foreground text-3xl flex flex-col items-center gap-6">
@@ -143,46 +143,46 @@ export default function PresenterPage() {
         return (
             <div className="space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="flex items-center justify-center gap-4 text-4xl font-black text-pink-400 drop-shadow-md">
-                    <Palette className="w-10 h-10" /> Old Logo Finder  Logo #{l.no}
+                    <Palette className="w-10 h-10" /> Old Logo Finder  Logo #{activeLogo.no}
                 </div>
                 <Card className="border-pink-500/30 shadow-2xl bg-card/80 backdrop-blur-xl">
                     <CardContent className="p-12 flex flex-col items-center">
                         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[3rem] p-12 shadow-2xl mb-10 w-full max-w-2xl flex items-center justify-center aspect-square relative overflow-hidden">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={l.svg} alt="Vintage Logo" className="max-w-full max-h-full object-contain drop-shadow-2xl" />
+                            <img src={activeLogo.svg} alt="Vintage Logo" className="max-w-full max-h-full object-contain drop-shadow-2xl" />
                         </div>
-                        <p className="text-pink-300 italic text-4xl mb-12 text-center font-medium">&quot;{l.hint}&quot;</p>
+                        <p className="text-pink-300 italic text-4xl mb-12 text-center font-medium">&quot;{activeLogo.hint}&quot;</p>
 
-                        {!l.revealed ? (
+                        {!activeLogo.revealed ? (
                             <div className="w-full space-y-8">
                                 <div className="grid grid-cols-2 gap-6 w-full">
-                                    {l.options.map((opt: string) => (
+                                    {activeLogo.options.map((opt: string) => (
                                         <div key={opt} className="flex items-center justify-center h-24 rounded-2xl text-3xl font-bold border-4 border-border/50 bg-background/50 text-muted-foreground">
                                             {opt}
                                         </div>
                                     ))}
                                 </div>
                                 <div className="text-center text-3xl text-muted-foreground font-medium bg-background/50 py-6 rounded-full border border-border/50">
-                                    <span className="text-pink-400 font-bold">{l.totalVotes}</span> votes submitted
+                                    <span className="text-pink-400 font-bold">{activeLogo.totalVotes}</span> votes submitted
                                 </div>
                             </div>
                         ) : (
                             <div className="w-full space-y-8 animate-in slide-in-from-bottom-10 fade-in duration-700">
                                 <div className="grid grid-cols-2 gap-6 w-full">
-                                    {l.options.map((opt: string) => {
-                                        const isAns = opt === l.answer;
+                                    {activeLogo.options.map((opt: string) => {
+                                        const isCorrectAnswer = opt === activeLogo.answer;
                                         return (
-                                            <div key={opt} className={`flex items-center justify-center h-24 rounded-2xl text-3xl font-bold border-4 transition-all ${isAns ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)] scale-105' : 'bg-background/30 border-border/30 text-muted-foreground opacity-30'}`}>
-                                                {opt} {isAns && <CheckCircle2 className="w-8 h-8 ml-3" />}
+                                            <div key={opt} className={`flex items-center justify-center h-24 rounded-2xl text-3xl font-bold border-4 transition-all ${isCorrectAnswer ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)] scale-105' : 'bg-background/30 border-border/30 text-muted-foreground opacity-30'}`}>
+                                                {opt} {isCorrectAnswer && <CheckCircle2 className="w-8 h-8 ml-3" />}
                                             </div>
                                         );
                                     })}
                                 </div>
                                 <div className="p-10 rounded-3xl border-4 bg-emerald-500/10 border-emerald-500/50 text-center">
                                     <div className="font-black text-5xl mb-6 flex items-center justify-center gap-4 text-emerald-400">
-                                        <CheckCircle2 className="w-12 h-12" /> Correct brand: {l.answer}
+                                        <CheckCircle2 className="w-12 h-12" /> Correct brand: {activeLogo.answer}
                                     </div>
-                                    <div className="text-3xl text-muted-foreground leading-relaxed">{l.explanation}</div>
+                                    <div className="text-3xl text-muted-foreground leading-relaxed">{activeLogo.explanation}</div>
                                 </div>
                             </div>
                         )}
@@ -193,8 +193,8 @@ export default function PresenterPage() {
     };
 
     const renderConnection = () => {
-        const pz = gameState.connection.puzzles.find((p: { no: number }) => p.no === gameState.connection.activePuzzleId);
-        if (!pz) {
+        const activePuzzle = gameState.connection.puzzles.find((p: { no: number }) => p.no === gameState.connection.activePuzzleId);
+        if (!activePuzzle) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-blue-500/30 bg-blue-500/5">
                     <CardContent className="pt-6 text-muted-foreground text-3xl flex flex-col items-center gap-6">
@@ -218,21 +218,21 @@ export default function PresenterPage() {
             }
         };
 
-        const revealedCats = pz.categories.filter((c: { name: string }) => pz.revealedCategories.includes(c.name));
-        const unrevealedWords = pz.categories
-            .filter((c: { name: string }) => !pz.revealedCategories.includes(c.name))
+        const revealedCategories = activePuzzle.categories.filter((c: { name: string }) => activePuzzle.revealedCategories.includes(c.name));
+        const unrevealedWords = activePuzzle.categories
+            .filter((c: { name: string }) => !activePuzzle.revealedCategories.includes(c.name))
             .flatMap((c: { words: string[] }) => c.words);
 
         return (
             <div className="space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="flex items-center justify-center gap-4 text-4xl font-black text-blue-400 drop-shadow-md">
-                    <Puzzle className="w-10 h-10" /> Connection  {pz.title}
+                    <Puzzle className="w-10 h-10" /> Connection  {activePuzzle.title}
                 </div>
                 <Card className="border-blue-500/30 shadow-2xl bg-card/80 backdrop-blur-xl">
                     <CardContent className="p-12 space-y-8">
-                        {revealedCats.length > 0 && (
+                        {revealedCategories.length > 0 && (
                             <div className="space-y-4">
-                                {revealedCats.map((c: { name: string; level: string; words: string[] }) => (
+                                {revealedCategories.map((c: { name: string; level: string; words: string[] }) => (
                                     <div key={c.name} className={`p-8 rounded-2xl text-center shadow-lg animate-in zoom-in duration-500 ${getCategoryColor(c.level)}`}>
                                         <div className="font-black text-3xl uppercase tracking-widest mb-3">{c.name}</div>
                                         <div className="font-bold text-2xl opacity-90 tracking-wide">{c.words.join('  ')}</div>
@@ -253,7 +253,7 @@ export default function PresenterPage() {
                             <div className="p-12 rounded-3xl border-4 bg-emerald-500/10 border-emerald-500/50 text-center animate-in fade-in duration-700">
                                 <div className="font-black text-5xl flex flex-col items-center justify-center gap-6 text-emerald-400">
                                     <CheckCircle2 className="w-24 h-24" />
-                                     Puzzle completely solved!
+                                    Puzzle completely solved!
                                 </div>
                             </div>
                         )}

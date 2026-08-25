@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
+import { verifyToken } from './lib/jwt';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -35,9 +36,32 @@ app.prepare().then(() => {
 
     const io = new Server(httpServer);
 
-    io.on('connection', (socket) => {
-        socket.data = { role: 'spectator', memberId: null };
-        console.log('A user connected:', socket.id);
+    io.use((socket, next) => {
+        const token = socket.handshake.auth.token;
+        if (token) {
+            const decoded = verifyToken(token) as any;
+            if (decoded) {
+                socket.data.user = decoded;
+            }
+        }
+        next();
+    });
+
+    io.on('connection', async (socket) => {
+        socket.data.role = socket.data.role || 'spectator';
+        socket.data.memberId = socket.data.memberId || null;
+        
+        if (socket.data.user) {
+            socket.data.role = socket.data.user.role === 'ADMIN' ? 'admin' : 'member';
+            socket.data.memberId = socket.data.user.id;
+            
+            await prisma.member.update({
+                where: { id: socket.data.user.id },
+                data: { connected: true }
+            });
+        }
+
+        console.log('A user connected:', socket.id, 'Role:', socket.data.role);
 
         // Helper to broadcast state to everyone
         const broadcast = async () => {
@@ -177,40 +201,12 @@ app.prepare().then(() => {
             io.emit('state-update', fullState);
         };
 
+        // Send initial state to the connected user and update others
+        broadcast();
+
         // -- Identity --
-        socket.on('member:join', async ({ name, team }, ack) => {
-            if (!name) {
-                if (ack) ack({ ok: false, error: 'Please enter your name.' });
-                return;
-            }
-
-            // Create or update member in DB
-            const member = await prisma.member.create({
-                data: {
-                    name: name.trim().slice(0, 40),
-                    team: (team || '').toString().trim().slice(0, 40) || 'No team',
-                    connected: true,
-                }
-            });
-
-            socket.data.role = 'member';
-            socket.data.memberId = member.id;
-            if (ack) ack({ ok: true, memberId: member.id });
-            broadcast();
-        });
-
         socket.on('spectator:join', (ack) => {
             socket.data.role = 'spectator';
-            if (ack) ack({ ok: true });
-            broadcast();
-        });
-
-        socket.on('admin:login', ({ password }, ack) => {
-            if (password !== (process.env.ADMIN_PASSWORD || 'funfriday')) {
-                if (ack) ack({ ok: false, error: 'Incorrect admin password.' });
-                return;
-            }
-            socket.data.role = 'admin';
             if (ack) ack({ ok: true });
             broadcast();
         });
@@ -267,28 +263,27 @@ app.prepare().then(() => {
 
             if (!item || !member || item.status !== 'active') return;
 
+            if (member.points < amount) {
+                if (ack) ack({ ok: false, error: 'Not enough points.' });
+                return;
+            }
+
             if (amount <= item.currentBid) {
-                if (ack) ack({ ok: false, error: `Bid must be higher than ${item.currentBid}.` });
-                return;
-            }
-            if (amount > member.points) {
-                if (ack) ack({ ok: false, error: `You only have ${member.points} points.` });
+                if (ack) ack({ ok: false, error: 'Bid must be higher than current bid.' });
                 return;
             }
 
-            // Update bid in DB
-            await prisma.auctionItem.update({
-                where: { id: item.id },
-                data: { currentBid: amount }
-            });
-
-            // Record the bid
             await prisma.auctionBid.create({
                 data: {
                     amount,
-                    auctionItemId: item.id,
-                    memberId: member.id
+                    memberId: member.id,
+                    itemId: item.id
                 }
+            });
+
+            await prisma.auctionItem.update({
+                where: { id: item.id },
+                data: { currentBid: amount }
             });
 
             if (ack) ack({ ok: true });
@@ -309,71 +304,30 @@ app.prepare().then(() => {
             if (!item || item.status !== 'active') return;
 
             const highestBid = item.bids[0];
-
             if (highestBid) {
-                const winner = await prisma.member.findUnique({ where: { id: highestBid.memberId } });
-                if (winner) {
-                    // Deduct points from winner
-                    await prisma.member.update({
-                        where: { id: winner.id },
-                        data: { points: Math.max(0, winner.points - highestBid.amount) }
-                    });
-
-                    // Mark item as sold to winner
-                    await prisma.auctionItem.update({
-                        where: { id: item.id },
-                        data: {
-                            status: 'sold',
-                            winnerId: winner.id,
-                            winningBid: highestBid.amount
-                        }
-                    });
-                }
-            } else {
-                // No bids, just mark as pending again
                 await prisma.auctionItem.update({
                     where: { id: item.id },
-                    data: { status: 'pending' }
+                    data: {
+                        status: 'sold',
+                        winnerId: highestBid.memberId,
+                        winningBid: highestBid.amount
+                    }
+                });
+
+                await prisma.member.update({
+                    where: { id: highestBid.memberId },
+                    data: { points: { decrement: highestBid.amount } }
+                });
+            } else {
+                await prisma.auctionItem.update({
+                    where: { id: item.id },
+                    data: { status: 'sold' }
                 });
             }
 
-            // Clear active auction
             await prisma.gameState.update({
                 where: { id: 'global' },
                 data: { activeAuctionId: null }
-            });
-
-            broadcast();
-        });
-
-        socket.on('auction:cancel', async () => {
-            if (socket.data.role !== 'admin') return;
-
-            const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
-            if (!globalState?.activeAuctionId) return;
-
-            await prisma.auctionItem.update({
-                where: { id: globalState.activeAuctionId },
-                data: { status: 'pending', currentBid: 0 }
-            });
-
-            await prisma.gameState.update({
-                where: { id: 'global' },
-                data: { activeAuctionId: null }
-            });
-
-            broadcast();
-        });
-
-        socket.on('auction:reason', async ({ itemId, reason }) => {
-            if (socket.data.role !== 'member') return;
-
-            const item = await prisma.auctionItem.findUnique({ where: { no: Number(itemId) } });
-            if (!item || item.winnerId !== socket.data.memberId) return;
-
-            await prisma.auctionItem.update({
-                where: { id: item.id },
-                data: { reason: (reason || '').toString().trim().slice(0, 240) }
             });
 
             broadcast();
@@ -383,8 +337,8 @@ app.prepare().then(() => {
         socket.on('myth:open', async ({ mythId }) => {
             if (socket.data.role !== 'admin') return;
 
-            const myth = await prisma.mythStatement.findUnique({ where: { no: Number(mythId) } });
-            if (!myth) return;
+            const stmt = await prisma.mythStatement.findUnique({ where: { no: Number(mythId) } });
+            if (!stmt || stmt.status === 'completed') return;
 
             await prisma.mythStatement.updateMany({
                 where: { status: 'active' },
@@ -392,13 +346,13 @@ app.prepare().then(() => {
             });
 
             await prisma.mythStatement.update({
-                where: { id: myth.id },
+                where: { id: stmt.id },
                 data: { status: 'active' }
             });
 
             await prisma.gameState.update({
                 where: { id: 'global' },
-                data: { phase: 'myth', activeMythId: myth.id }
+                data: { phase: 'myth', activeMythId: stmt.id }
             });
 
             broadcast();
@@ -410,22 +364,21 @@ app.prepare().then(() => {
             const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
             if (!globalState?.activeMythId) return;
 
-            const myth = await prisma.mythStatement.findUnique({ where: { id: globalState.activeMythId } });
-            if (!myth || myth.status !== 'active' || myth.revealed) return;
+            const stmt = await prisma.mythStatement.findUnique({ where: { id: globalState.activeMythId } });
+            if (!stmt || stmt.status !== 'active') return;
 
-            // Upsert the vote (create or update if already voted)
             await prisma.mythVote.upsert({
                 where: {
-                    mythStatementId_memberId: {
-                        mythStatementId: myth.id,
-                        memberId: socket.data.memberId
+                    memberId_statementId: {
+                        memberId: socket.data.memberId,
+                        statementId: stmt.id
                     }
                 },
                 update: { vote },
                 create: {
                     vote,
-                    mythStatementId: myth.id,
-                    memberId: socket.data.memberId
+                    memberId: socket.data.memberId,
+                    statementId: stmt.id
                 }
             });
 
@@ -439,34 +392,32 @@ app.prepare().then(() => {
             const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
             if (!globalState?.activeMythId) return;
 
-            const myth = await prisma.mythStatement.findUnique({
+            const stmt = await prisma.mythStatement.findUnique({
                 where: { id: globalState.activeMythId },
                 include: { votes: true }
             });
 
-            if (!myth || myth.revealed) return;
+            if (!stmt || stmt.status !== 'active') return;
 
-            // Mark as revealed and scored
             await prisma.mythStatement.update({
-                where: { id: myth.id },
-                data: { revealed: true, scored: true }
+                where: { id: stmt.id },
+                data: { status: 'completed', revealed: true, scored: true }
             });
 
-            // Award points to correct voters (10 points)
-            for (const vote of myth.votes) {
-                if (vote.vote === myth.answer) {
-                    const member = await prisma.member.findUnique({ where: { id: vote.memberId } });
-                    if (member) {
-                        await prisma.member.update({
-                            where: { id: member.id },
-                            data: {
-                                points: member.points + 10,
-                                quizScore: member.quizScore + 10
-                            }
-                        });
-                    }
+            // Award points
+            for (const v of stmt.votes) {
+                if (v.vote === stmt.answer) {
+                    await prisma.member.update({
+                        where: { id: v.memberId },
+                        data: { quizScore: { increment: 10 } }
+                    });
                 }
             }
+
+            await prisma.gameState.update({
+                where: { id: 'global' },
+                data: { activeMythId: null }
+            });
 
             broadcast();
         });
@@ -476,7 +427,7 @@ app.prepare().then(() => {
             if (socket.data.role !== 'admin') return;
 
             const logo = await prisma.logoItem.findUnique({ where: { no: Number(logoId) } });
-            if (!logo) return;
+            if (!logo || logo.status === 'completed') return;
 
             await prisma.logoItem.updateMany({
                 where: { status: 'active' },
@@ -503,21 +454,20 @@ app.prepare().then(() => {
             if (!globalState?.activeLogoId) return;
 
             const logo = await prisma.logoItem.findUnique({ where: { id: globalState.activeLogoId } });
-            if (!logo || logo.status !== 'active' || logo.revealed) return;
+            if (!logo || logo.status !== 'active') return;
 
-            // Upsert the vote
             await prisma.logoVote.upsert({
                 where: {
-                    logoItemId_memberId: {
-                        logoItemId: logo.id,
-                        memberId: socket.data.memberId
+                    memberId_logoId: {
+                        memberId: socket.data.memberId,
+                        logoId: logo.id
                     }
                 },
                 update: { vote },
                 create: {
                     vote,
-                    logoItemId: logo.id,
-                    memberId: socket.data.memberId
+                    memberId: socket.data.memberId,
+                    logoId: logo.id
                 }
             });
 
@@ -536,39 +486,38 @@ app.prepare().then(() => {
                 include: { votes: true }
             });
 
-            if (!logo || logo.revealed) return;
+            if (!logo || logo.status !== 'active') return;
 
-            // Mark as revealed and scored
             await prisma.logoItem.update({
                 where: { id: logo.id },
-                data: { revealed: true, scored: true }
+                data: { status: 'completed', revealed: true, scored: true }
             });
 
-            // Award points to correct voters (10 points)
-            for (const vote of logo.votes) {
-                if (vote.vote === logo.answer) {
-                    const member = await prisma.member.findUnique({ where: { id: vote.memberId } });
-                    if (member) {
-                        await prisma.member.update({
-                            where: { id: member.id },
-                            data: {
-                                points: member.points + 10,
-                                quizScore: member.quizScore + 10
-                            }
-                        });
-                    }
+            // Award points
+            const pointsToAward = logo.level === 'hard' ? 20 : logo.level === 'medium' ? 15 : 10;
+            for (const v of logo.votes) {
+                if (v.vote === logo.answer) {
+                    await prisma.member.update({
+                        where: { id: v.memberId },
+                        data: { quizScore: { increment: pointsToAward } }
+                    });
                 }
             }
+
+            await prisma.gameState.update({
+                where: { id: 'global' },
+                data: { activeLogoId: null }
+            });
 
             broadcast();
         });
 
-        // -- Connections Puzzle Logic --
+        // -- Connection Logic --
         socket.on('connection:open', async ({ puzzleId }) => {
             if (socket.data.role !== 'admin') return;
 
             const puzzle = await prisma.connectionPuzzle.findUnique({ where: { no: Number(puzzleId) } });
-            if (!puzzle) return;
+            if (!puzzle || puzzle.status === 'completed') return;
 
             await prisma.connectionPuzzle.updateMany({
                 where: { status: 'active' },
@@ -588,12 +537,8 @@ app.prepare().then(() => {
             broadcast();
         });
 
-        socket.on('connection:submit', async ({ words }, ack) => {
+        socket.on('connection:guess', async ({ words }, ack) => {
             if (socket.data.role !== 'member') return;
-            if (!Array.isArray(words) || words.length !== 4) {
-                if (ack) ack({ ok: false, error: 'Please select exactly 4 words.' });
-                return;
-            }
 
             const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
             if (!globalState?.activeConnectionId) return;
@@ -605,139 +550,127 @@ app.prepare().then(() => {
 
             if (!puzzle || puzzle.status !== 'active') return;
 
-            // Sort words to make comparison easy
-            const submittedWords = [...words].sort();
-            let matchedCategory = null;
-
-            for (const category of puzzle.categories) {
-                const categoryWords = [...category.words].sort();
-                if (JSON.stringify(submittedWords) === JSON.stringify(categoryWords)) {
-                    matchedCategory = category;
-                    break;
-                }
-            }
+            // Find matching category
+            const sortedGuess = [...words].sort().join(',');
+            const matchedCategory = puzzle.categories.find(c => [...c.words].sort().join(',') === sortedGuess);
 
             if (matchedCategory) {
-                // Check if already solved by this member
-                const existingSolve = await prisma.solvedCategory.findUnique({
-                    where: {
-                        memberId_connectionCategoryId: {
-                            memberId: socket.data.memberId,
-                            connectionCategoryId: matchedCategory.id
-                        }
-                    }
-                });
-
-                if (existingSolve) {
-                    if (ack) ack({ ok: false, error: 'You already found this group!' });
+                // Check if already revealed
+                if (puzzle.revealedCategories.includes(matchedCategory.name)) {
+                    if (ack) ack({ ok: false, error: 'Already solved!' });
                     return;
                 }
 
-                // Record the solve
+                // Mark as solved by this member
                 await prisma.solvedCategory.create({
                     data: {
                         memberId: socket.data.memberId,
-                        connectionCategoryId: matchedCategory.id
+                        categoryId: matchedCategory.id
                     }
                 });
 
-                // Award points (20 points)
-                const member = await prisma.member.findUnique({ where: { id: socket.data.memberId } });
-                if (member) {
-                    await prisma.member.update({
-                        where: { id: member.id },
-                        data: {
-                            points: member.points + 20,
-                            quizScore: member.quizScore + 20
-                        }
+                // Update puzzle revealed categories
+                const newRevealed = [...puzzle.revealedCategories, matchedCategory.name];
+                const isCompleted = newRevealed.length === puzzle.categories.length;
+
+                await prisma.connectionPuzzle.update({
+                    where: { id: puzzle.id },
+                    data: {
+                        revealedCategories: newRevealed,
+                        status: isCompleted ? 'completed' : 'active'
+                    }
+                });
+
+                if (isCompleted) {
+                    await prisma.gameState.update({
+                        where: { id: 'global' },
+                        data: { activeConnectionId: null }
                     });
                 }
 
-                if (ack) ack({ ok: true, matched: true, category: matchedCategory.name });
+                // Award points
+                await prisma.member.update({
+                    where: { id: socket.data.memberId },
+                    data: { quizScore: { increment: 25 } }
+                });
+
+                if (ack) ack({ ok: true });
                 broadcast();
             } else {
-                // Check for one away
-                let oneAway = false;
-                for (const category of puzzle.categories) {
-                    const intersection = submittedWords.filter(w => category.words.includes(w));
-                    if (intersection.length === 3) {
-                        oneAway = true;
-                        break;
-                    }
+                // Check if 1 away
+                let maxOverlap = 0;
+                for (const c of puzzle.categories) {
+                    if (puzzle.revealedCategories.includes(c.name)) continue;
+                    const overlap = words.filter((w: string) => c.words.includes(w)).length;
+                    if (overlap > maxOverlap) maxOverlap = overlap;
                 }
-                if (ack) ack({ ok: true, matched: false, oneAway });
+
+                if (maxOverlap === 3) {
+                    if (ack) ack({ ok: false, error: 'One away!' });
+                } else {
+                    if (ack) ack({ ok: false, error: 'Incorrect.' });
+                }
             }
         });
 
-        socket.on('connection:revealGroup', async ({ categoryName }) => {
+        socket.on('admin:revealConnection', async ({ categoryName }) => {
             if (socket.data.role !== 'admin') return;
 
             const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
             if (!globalState?.activeConnectionId) return;
 
-            const puzzle = await prisma.connectionPuzzle.findUnique({ where: { id: globalState.activeConnectionId } });
-            if (!puzzle) return;
-
-            // Add category to revealed list if not already there
-            if (!puzzle.revealedCategories.includes(categoryName)) {
-                await prisma.connectionPuzzle.update({
-                    where: { id: puzzle.id },
-                    data: { revealedCategories: { push: categoryName } }
-                });
-                broadcast();
-            }
-        });
-
-        socket.on('admin:reset', async () => {
-            if (socket.data.role !== 'admin') return;
-
-            // Delete all dynamic data
-            await prisma.auctionBid.deleteMany({});
-            await prisma.mythVote.deleteMany({});
-            await prisma.logoVote.deleteMany({});
-            await prisma.solvedCategory.deleteMany({});
-            await prisma.member.deleteMany({});
-
-            // Reset statuses
-            await prisma.auctionItem.updateMany({ data: { status: 'pending', currentBid: 0, winnerId: null, winningBid: 0, reason: '' } });
-            await prisma.mythStatement.updateMany({ data: { status: 'pending', revealed: false, scored: false } });
-            await prisma.logoItem.updateMany({ data: { status: 'pending', revealed: false, scored: false } });
-            await prisma.connectionPuzzle.updateMany({ data: { status: 'pending', revealedCategories: [] } });
-
-            // Reset global state
-            await prisma.gameState.update({
-                where: { id: 'global' },
-                data: { phase: 'lobby', activeAuctionId: null, activeMythId: null, activeLogoId: null, activeConnectionId: null }
+            const puzzle = await prisma.connectionPuzzle.findUnique({
+                where: { id: globalState.activeConnectionId },
+                include: { categories: true }
             });
 
-            // Force disconnect all members
-            const sockets = await io.fetchSockets();
-            for (const s of sockets) {
-                if (s.data.role === 'member') {
-                    s.disconnect(true);
+            if (!puzzle || puzzle.status !== 'active') return;
+            if (puzzle.revealedCategories.includes(categoryName)) return;
+
+            const newRevealed = [...puzzle.revealedCategories, categoryName];
+            const isCompleted = newRevealed.length === puzzle.categories.length;
+
+            await prisma.connectionPuzzle.update({
+                where: { id: puzzle.id },
+                data: {
+                    revealedCategories: newRevealed,
+                    status: isCompleted ? 'completed' : 'active'
                 }
+            });
+
+            if (isCompleted) {
+                await prisma.gameState.update({
+                    where: { id: 'global' },
+                    data: { activeConnectionId: null }
+                });
             }
 
             broadcast();
         });
 
-        socket.on('admin:kick', async ({ memberId }) => {
+        // -- Reset --
+        socket.on('admin:reset', async ({ what }) => {
             if (socket.data.role !== 'admin') return;
 
-            // Delete related records first to avoid foreign key constraint errors
-            await prisma.auctionBid.deleteMany({ where: { memberId } });
-            await prisma.mythVote.deleteMany({ where: { memberId } });
-            await prisma.logoVote.deleteMany({ where: { memberId } });
-            await prisma.solvedCategory.deleteMany({ where: { memberId } });
-
-            await prisma.member.delete({ where: { id: memberId } }).catch(() => { });
-
-            // Force disconnect the specific member
-            const sockets = await io.fetchSockets();
-            for (const s of sockets) {
-                if (s.data.memberId === memberId) {
-                    s.disconnect(true);
-                }
+            if (what === 'auction' || what === 'all') {
+                await prisma.auctionItem.updateMany({ data: { status: 'pending', currentBid: 0, winningBid: 0, winnerId: null } });
+                await prisma.auctionBid.deleteMany();
+            }
+            if (what === 'myth' || what === 'all') {
+                await prisma.mythStatement.updateMany({ data: { status: 'pending', revealed: false, scored: false } });
+                await prisma.mythVote.deleteMany();
+            }
+            if (what === 'logo' || what === 'all') {
+                await prisma.logoItem.updateMany({ data: { status: 'pending', revealed: false, scored: false } });
+                await prisma.logoVote.deleteMany();
+            }
+            if (what === 'connection' || what === 'all') {
+                await prisma.connectionPuzzle.updateMany({ data: { status: 'pending', revealedCategories: [] } });
+                await prisma.solvedCategory.deleteMany();
+            }
+            if (what === 'all') {
+                await prisma.member.updateMany({ data: { points: 100, quizScore: 0 } });
+                await prisma.gameState.update({ where: { id: 'global' }, data: { phase: 'lobby', activeAuctionId: null, activeMythId: null, activeLogoId: null, activeConnectionId: null } });
             }
 
             broadcast();
@@ -755,12 +688,7 @@ app.prepare().then(() => {
         });
     });
 
-    httpServer
-        .once('error', (err) => {
-            console.error(err);
-            process.exit(1);
-        })
-        .listen(port, () => {
-            console.log(`> Ready on http://${hostname}:${port}`);
-        });
+    httpServer.listen(port, () => {
+        console.log(`> Ready on http://${hostname}:${port}`);
+    });
 });
