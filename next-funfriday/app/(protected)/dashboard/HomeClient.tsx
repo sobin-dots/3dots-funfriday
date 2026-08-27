@@ -91,6 +91,7 @@ export default function HomeClient() {
                 <AuctionView
                     role={role}
                     auction={gameState.auction}
+                    members={gameState.members}
                     memberPoints={currentMember?.points}
                     onBid={(amount) => socket.emit(SOCKET_EVENTS.AUCTION_BID, { amount }, (res: { ok: boolean; error?: string }) => { if (!res.ok) toast.error(res.error); else toast.success('Bid placed!'); })}
                     onOpenItem={(itemId) => socket.emit(SOCKET_EVENTS.AUCTION_OPEN, { itemId })}
