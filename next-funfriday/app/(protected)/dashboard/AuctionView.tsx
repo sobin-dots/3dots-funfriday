@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tag, RotateCcw, CheckCircle2, XCircle, Coins } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AuctionItem {
     id: string;
@@ -27,6 +28,7 @@ interface AuctionState {
 interface AuctionViewProps {
     role: 'member' | 'admin';
     auction: AuctionState;
+    members?: Record<string, any>;
     memberPoints?: number;
     onBid?: (amount: number) => void;
     onOpenItem?: (itemId: number) => void;
@@ -38,6 +40,7 @@ interface AuctionViewProps {
 export default function AuctionView({
     role,
     auction,
+    members,
     memberPoints = 0,
     onBid,
     onOpenItem,
@@ -46,6 +49,15 @@ export default function AuctionView({
     onReset
 }: AuctionViewProps) {
     const activeItem = auction.items.find((i) => i.no === auction.activeItemId);
+
+    const handlePlaceBid = () => {
+        const val = (document.getElementById('bid-amount') as HTMLInputElement).value;
+        if (!val) {
+            toast.error("Please enter a bid amount");
+            return;
+        }
+        if (onBid) onBid(Number(val));
+    };
 
     if (role === 'member') {
         if (!activeItem) {
@@ -70,7 +82,7 @@ export default function AuctionView({
                         <div className="text-yellow-400 italic mb-6">{activeItem.why}</div>
                         <div className="text-5xl md:text-6xl font-black text-white mb-2 drop-shadow-md">{activeItem.currentBid} <span className="text-2xl text-indigo-300">pts</span></div>
                         <div className="text-muted-foreground font-medium">
-                            {activeItem.currentBidderId ? '🔥 Top bid placed' : 'No bids yet — start it off!'}
+                            {activeItem.currentBidderId ? `🔥 Top bid by ${members?.[activeItem.currentBidderId!]?.name || 'Unknown'}` : 'No bids yet — start it off!'}
                         </div>
                     </div>
 
@@ -85,10 +97,7 @@ export default function AuctionView({
                                     max={memberPoints}
                                     placeholder={`Your bid (max ${memberPoints})`}
                                 />
-                                <Button size="lg" className="py-6 px-8 text-lg font-bold bg-indigo-600 hover:bg-indigo-700" onClick={() => {
-                                    const val = (document.getElementById('bid-amount') as HTMLInputElement).value;
-                                    if (val && onBid) onBid(Number(val));
-                                }}>
+                                <Button size="lg" className="py-6 px-8 text-lg font-bold bg-indigo-600 hover:bg-indigo-700" onClick={handlePlaceBid}>
                                     Place bid
                                 </Button>
                             </div>
@@ -153,7 +162,7 @@ export default function AuctionView({
                             <div className="text-yellow-400 italic mb-4">{activeItem.why}</div>
                             <div className="text-4xl font-black text-white mb-1">{activeItem.currentBid} <span className="text-xl text-indigo-300">pts</span></div>
                             <div className="text-muted-foreground text-sm">
-                                {activeItem.currentBidderId ? '🔥 Top bid placed' : 'No bids yet'}
+                                {activeItem.currentBidderId ? `🔥 Top bid by ${members?.[activeItem.currentBidderId!]?.name || 'Unknown'}` : 'No bids yet'}
                             </div>
                         </div>
                         <div className="flex flex-wrap sm:flex-nowrap gap-3">
@@ -163,7 +172,7 @@ export default function AuctionView({
                                 disabled={!activeItem.currentBidderId}
                                 onClick={onSell}
                             >
-                                <Coins className="w-5 h-5 mr-2" /> Sell ({activeItem.currentBid})
+                                <Coins className="w-5 h-5 mr-2" /> Sell to {activeItem.currentBidderId ? members?.[activeItem.currentBidderId]?.name?.split(' ')[0] || 'Member' : 'Member'} ({activeItem.currentBid})
                             </Button>
                             <Button size="lg" variant="destructive" onClick={onCancel}>
                                 <XCircle className="w-5 h-5 mr-2" /> Cancel item

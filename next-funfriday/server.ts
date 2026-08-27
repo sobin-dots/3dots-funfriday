@@ -50,11 +50,11 @@ app.prepare().then(() => {
     io.on('connection', async (socket) => {
         socket.data.role = socket.data.role || 'spectator';
         socket.data.memberId = socket.data.memberId || null;
-        
+
         if (socket.data.user) {
             socket.data.role = socket.data.user.role === 'ADMIN' ? 'admin' : 'member';
             socket.data.memberId = socket.data.user.id;
-            
+
             await prisma.member.update({
                 where: { id: socket.data.user.id },
                 data: { connected: true }
@@ -277,7 +277,7 @@ app.prepare().then(() => {
                 data: {
                     amount,
                     memberId: member.id,
-                    itemId: item.id
+                    auctionItemId: item.id
                 }
             });
 
@@ -369,16 +369,16 @@ app.prepare().then(() => {
 
             await prisma.mythVote.upsert({
                 where: {
-                    memberId_statementId: {
+                    mythStatementId_memberId: {
                         memberId: socket.data.memberId,
-                        statementId: stmt.id
+                        mythStatementId: stmt.id
                     }
                 },
                 update: { vote },
                 create: {
                     vote,
                     memberId: socket.data.memberId,
-                    statementId: stmt.id
+                    mythStatementId: stmt.id
                 }
             });
 
@@ -458,16 +458,16 @@ app.prepare().then(() => {
 
             await prisma.logoVote.upsert({
                 where: {
-                    memberId_logoId: {
+                    logoItemId_memberId: {
                         memberId: socket.data.memberId,
-                        logoId: logo.id
+                        logoItemId: logo.id
                     }
                 },
                 update: { vote },
                 create: {
                     vote,
                     memberId: socket.data.memberId,
-                    logoId: logo.id
+                    logoItemId: logo.id
                 }
             });
 
