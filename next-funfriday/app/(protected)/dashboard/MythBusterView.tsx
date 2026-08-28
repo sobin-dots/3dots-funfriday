@@ -11,7 +11,7 @@ interface MythStatement {
     text: string;
     answer: string;
     explanation: string;
-    status: 'pending' | 'active' | 'revealed';
+    status: 'pending' | 'active' | 'completed';
     revealed: boolean;
     totalVotes: number;
     votes: Record<string, string>; // memberId -> 'True' | 'False'
@@ -29,6 +29,7 @@ interface MythBusterViewProps {
     onVote?: (vote: 'True' | 'False') => void;
     onOpen?: (mythId: number) => void;
     onReveal?: () => void;
+    onClose?: () => void;
     onReset?: () => void;
 }
 
@@ -39,6 +40,7 @@ export default function MythBusterView({
     onVote,
     onOpen,
     onReveal,
+    onClose,
     onReset
 }: MythBusterViewProps) {
     const activeStatement = myth.statements.find((s) => s.no === myth.activeStatementId);
@@ -82,70 +84,108 @@ export default function MythBusterView({
         const myVote = memberId ? activeStatement.votes[memberId] : null;
 
         return (
-            <Card className="border-purple-500/20 shadow-lg bg-card/50">
-                <CardHeader>
-                    <CardTitle className="text-muted-foreground text-sm font-medium flex items-center gap-2">
-                        <Brain className="w-4 h-4 text-purple-400" /> Statement #{activeStatement.no}  Myth Buster
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/30 rounded-2xl p-6 shadow-inner mb-6">
-                        <div className="text-xl md:text-2xl font-bold text-white leading-relaxed">{activeStatement.text}</div>
-                    </div>
+            <div className="space-y-6">
+                <Card className="border-purple-500/20 shadow-lg bg-card/50">
+                    <CardHeader>
+                        <CardTitle className="text-muted-foreground text-sm font-medium flex items-center gap-2">
+                            <Brain className="w-4 h-4 text-purple-400" /> Statement #{activeStatement.no}  Myth Buster
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/30 rounded-2xl p-6 shadow-inner mb-6">
+                            <div className="text-xl md:text-2xl font-bold text-white leading-relaxed">{activeStatement.text}</div>
+                        </div>
 
-                    {!activeStatement.revealed ? (
-                        <div className="space-y-4">
-                            <p className="text-center text-muted-foreground font-medium">Discuss with your team, then vote:</p>
-                            <div className="flex gap-4">
-                                <Button
-                                    size="lg"
-                                    className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'True' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent'}`}
-                                    onClick={() => onVote && onVote('True')}
-                                >
-                                    <CheckCircle2 className="w-6 h-6 mr-2" /> TRUE {myVote === 'True' ? '' : ''}
-                                </Button>
-                                <Button
-                                    size="lg"
-                                    className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'False' ? 'bg-red-500/20 text-red-400 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-red-600 hover:bg-red-700 text-white border-transparent'}`}
-                                    onClick={() => onVote && onVote('False')}
-                                >
-                                    <XCircle className="w-6 h-6 mr-2" /> FALSE {myVote === 'False' ? '' : ''}
-                                </Button>
-                            </div>
-                            {myVote ? (
-                                <p className="text-center text-sm">
-                                    You voted <b className={myVote === 'True' ? 'text-emerald-400' : 'text-red-400'}>{myVote}</b>. You can change it until the answer is revealed.
-                                </p>
-                            ) : (
-                                <p className="text-center text-muted-foreground text-sm">No vote yet.</p>
-                            )}
-                            <p className="text-center text-muted-foreground text-sm">{activeStatement.totalVotes} vote(s) in so far.</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-6">
-                            {renderVoteBar(activeStatement)}
-                            <div className={`p-5 rounded-xl border ${activeStatement.answer === 'True' ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-red-500/10 border-red-500/50'}`}>
-                                <div className={`font-bold mb-2 flex items-center gap-2 ${activeStatement.answer === 'True' ? 'text-emerald-400' : 'text-red-400'}`}>
-                                    {activeStatement.answer === 'True' ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                                    Correct answer: {activeStatement.answer.toUpperCase()}
+                        {!activeStatement.revealed ? (
+                            <div className="space-y-4">
+                                <p className="text-center text-muted-foreground font-medium">Discuss with your team, then vote:</p>
+                                <div className="flex gap-4">
+                                    <Button
+                                        size="lg"
+                                        className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'True' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent'}`}
+                                        onClick={() => onVote && onVote('True')}
+                                    >
+                                        <CheckCircle2 className="w-6 h-6 mr-2" /> TRUE {myVote === 'True' ? '' : ''}
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'False' ? 'bg-red-500/20 text-red-400 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-red-600 hover:bg-red-700 text-white border-transparent'}`}
+                                        onClick={() => onVote && onVote('False')}
+                                    >
+                                        <XCircle className="w-6 h-6 mr-2" /> FALSE {myVote === 'False' ? '' : ''}
+                                    </Button>
                                 </div>
-                                <div className="text-muted-foreground leading-relaxed">{activeStatement.explanation}</div>
-                            </div>
-                            <div className="text-center font-medium text-lg">
                                 {myVote ? (
-                                    myVote === activeStatement.answer ? (
-                                        <span className="text-emerald-400 flex items-center justify-center gap-2"> You were right! +10 quiz points</span>
-                                    ) : (
-                                        <span className="text-red-400 flex items-center justify-center gap-2">You voted {myVote}  not this time.</span>
-                                    )
+                                    <p className="text-center text-sm">
+                                        You voted <b className={myVote === 'True' ? 'text-emerald-400' : 'text-red-400'}>{myVote}</b>. You can change it until the answer is revealed.
+                                    </p>
                                 ) : (
-                                    <span className="text-muted-foreground">You didn&apos;t vote on this one.</span>
+                                    <p className="text-center text-muted-foreground text-sm">No vote yet.</p>
                                 )}
+                                <p className="text-center text-muted-foreground text-sm">{activeStatement.totalVotes} vote(s) in so far.</p>
                             </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {renderVoteBar(activeStatement)}
+                                <div className={`p-5 rounded-xl border ${activeStatement.answer === 'True' ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-red-500/10 border-red-500/50'}`}>
+                                    <div className={`font-bold mb-2 flex items-center gap-2 ${activeStatement.answer === 'True' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                        {activeStatement.answer === 'True' ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                                        Correct answer: {activeStatement.answer.toUpperCase()}
+                                    </div>
+                                    <div className="text-muted-foreground leading-relaxed">{activeStatement.explanation}</div>
+                                </div>
+                                <div className="text-center font-medium text-lg">
+                                    {myVote ? (
+                                        myVote === activeStatement.answer ? (
+                                            <span className="text-emerald-400 flex items-center justify-center gap-2"> You were right! +10 quiz points</span>
+                                        ) : (
+                                            <span className="text-red-400 flex items-center justify-center gap-2">You voted {myVote}  not this time.</span>
+                                        )
+                                    ) : (
+                                        <span className="text-muted-foreground">You didn&apos;t vote on this one.</span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Past Quizzes Section for Members */}
+                {myth.statements.filter(s => s.status === 'completed').length > 0 && (
+                    <div className="mt-8 space-y-4">
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-muted-foreground">
+                            <RotateCcw className="w-5 h-5" /> Past Quizzes
+                        </h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            {myth.statements.filter(s => s.status === 'completed').map((s) => {
+                                const pastVote = memberId ? s.votes[memberId] : null;
+                                const isCorrect = pastVote === s.answer;
+                                return (
+                                    <Card key={s.id} className="border-border/50 bg-card/30 opacity-80">
+                                        <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                                            <div className="flex-1">
+                                                <div className="font-bold text-sm mb-1">#{s.no} {s.text}</div>
+                                                <div className="text-xs text-muted-foreground">{s.explanation}</div>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-1 min-w-[120px]">
+                                                <Badge variant="outline" className={s.answer === 'True' ? 'text-emerald-400 border-emerald-500/30' : 'text-red-400 border-red-500/30'}>
+                                                    Answer: {s.answer.toUpperCase()}
+                                                </Badge>
+                                                {pastVote && (
+                                                    <div className={`text-xs font-medium flex items-center gap-1 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                        {isCorrect ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                                                        You voted: {pastVote}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </div>
-                    )}
-                </CardContent>
-            </Card>
+                    </div>
+                )}
+            </div>
         );
     }
 
@@ -188,6 +228,16 @@ export default function MythBusterView({
                             >
                                 <Eye className="w-5 h-5 mr-2" /> Reveal answer & award points
                             </Button>
+                            {activeStatement.revealed && (
+                                <Button
+                                    size="lg"
+                                    variant="destructive"
+                                    className="flex-1"
+                                    onClick={onClose}
+                                >
+                                    <XCircle className="w-5 h-5 mr-2" /> Close Question
+                                </Button>
+                            )}
                             {activeStatement.no < myth.statements.length && (
                                 <Button
                                     size="lg"
@@ -214,15 +264,15 @@ export default function MythBusterView({
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {myth.statements.map((s) => (
-                            <div key={s.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${s.status === 'active' ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${s.status === 'revealed' ? 'opacity-60' : ''}`}>
+                            <div key={s.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${s.status === 'active' ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${s.status === 'completed' ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{s.no}</span>
-                                    <Badge variant={s.status === 'active' ? 'default' : s.status === 'revealed' ? 'secondary' : 'outline'} className={s.status === 'active' ? 'bg-purple-500' : s.status === 'revealed' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                    <Badge variant={s.status === 'active' ? 'default' : s.status === 'completed' ? 'secondary' : 'outline'} className={s.status === 'active' ? 'bg-purple-500' : s.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
                                         {s.status}
                                     </Badge>
                                 </div>
                                 <div className="font-bold text-sm leading-relaxed flex-1">{s.text}</div>
-                                
+
                                 <div className="pt-3 mt-auto border-t border-border/50 flex items-center justify-between">
                                     <div className="text-xs text-muted-foreground font-medium">
                                         {s.totalVotes} votes

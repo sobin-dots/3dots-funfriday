@@ -77,6 +77,9 @@ export const setupMythHandlers = (socket: Socket, broadcast: () => Promise<void>
             }
         }
 
+        broadcast();
+    }));
+    socket.on('myth:close', adminOnly(socket, async () => {
         await prisma.gameState.update({
             where: { id: 'global' },
             data: { activeMythId: null }

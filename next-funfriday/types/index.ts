@@ -27,7 +27,7 @@ export interface MythStatement {
     text: string;
     answer: string;
     explanation: string;
-    status: 'pending' | 'active' | 'revealed';
+    status: 'pending' | 'active' | 'completed';
     revealed: boolean;
     totalVotes: number;
     votes: Record<string, string>;
