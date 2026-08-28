@@ -20,6 +20,7 @@ export const SOCKET_EVENTS = {
     MYTH_OPEN: 'myth:open',
     MYTH_VOTE: 'myth:vote',
     MYTH_REVEAL: 'myth:reveal',
+    MYTH_CLOSE: 'myth:close',
 
     LOGO_OPEN: 'logo:open',
     LOGO_VOTE: 'logo:vote',

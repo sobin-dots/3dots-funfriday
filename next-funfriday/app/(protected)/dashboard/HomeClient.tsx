@@ -109,6 +109,7 @@ export default function HomeClient() {
                     onVote={(vote) => socket.emit(SOCKET_EVENTS.MYTH_VOTE, { vote }, (res: { ok: boolean; error?: string }) => { if (!res.ok) toast.error(res.error); else toast.success('Vote recorded!'); })}
                     onOpen={(mythId) => socket.emit(SOCKET_EVENTS.MYTH_OPEN, { mythId })}
                     onReveal={() => socket.emit(SOCKET_EVENTS.MYTH_REVEAL)}
+                    onClose={() => socket.emit(SOCKET_EVENTS.MYTH_CLOSE)}
                     onReset={() => socket.emit(SOCKET_EVENTS.ADMIN_RESET, { what: 'myth' })}
                 />
             )}
