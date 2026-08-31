@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/jwt';
-import { LoginForm, SignupForm } from '@/lib/validations/auth';
+import { LoginFormInput, SignupFormInput } from '@/lib/validations/auth';
 import { AuthenticationError, ConflictError } from '@/lib/errors';
+import { ROLES } from '@/constants';
 
 export class AuthService {
-    static async signup(payload: SignupForm) {
+    static async signup(payload: SignupFormInput) {
         const { name, email, password, team } = payload;
 
         const existingUser = await prisma.member.findUnique({
@@ -24,14 +25,14 @@ export class AuthService {
                 email,
                 password: hashedPassword,
                 team,
-                role: 'USER',
+                role: ROLES.USER,
             },
         });
 
         return { success: true, message: 'Account created successfully' };
     }
 
-    static async login(payload: LoginForm) {
+    static async login(payload: LoginFormInput) {
         const { email, password } = payload;
 
         const user = await prisma.member.findUnique({
