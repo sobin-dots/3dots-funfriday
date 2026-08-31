@@ -3,9 +3,11 @@ type FetchOptions = RequestInit & {
 };
 
 async function fetchAPI(endpoint: string, { data, headers: customHeaders, ...customConfig }: FetchOptions = {}) {
-    // Automatically set JSON headers
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
     const headers = {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...customHeaders,
     };
 

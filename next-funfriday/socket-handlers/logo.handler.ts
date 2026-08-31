@@ -1,58 +1,34 @@
 import { Socket } from 'socket.io';
 import { prisma } from '../lib/prisma';
 import { adminOnly, memberOnly } from './utils';
+import { GLOBAL_STATE_ID, GAME_PHASES, GAME_STATUS, SOCKET_EVENTS } from '../constants';
 
 export const setupLogoHandlers = (socket: Socket, broadcast: () => Promise<void>) => {
-    socket.on('logo:open', adminOnly(socket, async ({ logoId }: { logoId: number }) => {
+    socket.on(SOCKET_EVENTS.LOGO_OPEN, adminOnly(socket, async ({ logoId }: { logoId: number }) => {
         const logo = await prisma.logoItem.findUnique({ where: { no: Number(logoId) } });
-        if (!logo || logo.status === 'completed') return;
+        if (!logo || logo.status === GAME_STATUS.COMPLETED) return;
 
         await prisma.logoItem.updateMany({
-            where: { status: 'active' },
-            data: { status: 'pending' }
+            where: { status: GAME_STATUS.ACTIVE },
+            data: { status: GAME_STATUS.PENDING }
         });
 
         await prisma.logoItem.update({
             where: { id: logo.id },
-            data: { status: 'active' }
+            data: { status: GAME_STATUS.ACTIVE }
         });
 
         await prisma.gameState.update({
-            where: { id: 'global' },
-            data: { phase: 'logo', activeLogoId: logo.id }
+            where: { id: GLOBAL_STATE_ID },
+            data: { phase: GAME_PHASES.LOGO, activeLogoId: logo.id }
         });
 
         broadcast();
     }));
 
-    socket.on('logo:vote', memberOnly(socket, async ({ vote }: { vote: string }, ack: Function) => {
-        const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
-        if (!globalState?.activeLogoId) return;
 
-        const logo = await prisma.logoItem.findUnique({ where: { id: globalState.activeLogoId } });
-        if (!logo || logo.status !== 'active') return;
-
-        await prisma.logoVote.upsert({
-            where: {
-                logoItemId_memberId: {
-                    memberId: socket.data.memberId,
-                    logoItemId: logo.id
-                }
-            },
-            update: { vote },
-            create: {
-                vote,
-                memberId: socket.data.memberId,
-                logoItemId: logo.id
-            }
-        });
-
-        if (ack) ack({ ok: true });
-        broadcast();
-    }));
-
-    socket.on('logo:reveal', adminOnly(socket, async () => {
-        const globalState = await prisma.gameState.findUnique({ where: { id: 'global' } });
+    socket.on(SOCKET_EVENTS.LOGO_REVEAL, adminOnly(socket, async () => {
+        const globalState = await prisma.gameState.findUnique({ where: { id: GLOBAL_STATE_ID } });
         if (!globalState?.activeLogoId) return;
 
         const logo = await prisma.logoItem.findUnique({
@@ -60,11 +36,11 @@ export const setupLogoHandlers = (socket: Socket, broadcast: () => Promise<void>
             include: { votes: true }
         });
 
-        if (!logo || logo.status !== 'active') return;
+        if (!logo || logo.status !== GAME_STATUS.ACTIVE) return;
 
         await prisma.logoItem.update({
             where: { id: logo.id },
-            data: { status: 'completed', revealed: true, scored: true }
+            data: { status: GAME_STATUS.COMPLETED, revealed: true, scored: true }
         });
 
         // Award points
@@ -79,7 +55,7 @@ export const setupLogoHandlers = (socket: Socket, broadcast: () => Promise<void>
         }
 
         await prisma.gameState.update({
-            where: { id: 'global' },
+            where: { id: GLOBAL_STATE_ID },
             data: { activeLogoId: null }
         });
 
