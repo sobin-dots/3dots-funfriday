@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { GameState } from '../types';
-import { SOCKET_EVENTS } from '../constants/events';
+import { SOCKET_EVENTS, ROLES } from '../constants';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -9,7 +9,7 @@ let socket: Socket;
 
 export function useGameState(isSpectator: boolean = false) {
     const [gameState, setGameState] = useState<GameState | null>(null);
-    const [role, setRole] = useState<'guest' | 'member' | 'admin'>('guest');
+    const [role, setRole] = useState<typeof ROLES[keyof typeof ROLES]>(ROLES.GUEST);
     const [memberId, setMemberId] = useState<string>('');
     const router = useRouter();
 
@@ -25,7 +25,7 @@ export function useGameState(isSpectator: boolean = false) {
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
-                setRole(user.role === 'ADMIN' ? 'admin' : 'member');
+                setRole(user.role === ROLES.USER ? ROLES.MEMBER : ROLES.ADMIN);
                 setMemberId(user.id);
             } catch (e) { }
         }
@@ -59,7 +59,7 @@ export function useGameState(isSpectator: boolean = false) {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        setRole('guest');
+        setRole(ROLES.GUEST);
         router.push('/login');
     };
 

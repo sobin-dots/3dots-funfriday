@@ -2,6 +2,7 @@
 
 import ScoreBoard from '@/components/shared/ScoreBoard';
 import { useGameState } from '../../../hooks/useGameState';
+import { GAME_PHASES } from '../../../constants';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tag, Brain, Palette, Puzzle, Users, CheckCircle2, XCircle, Trophy } from 'lucide-react';
@@ -287,7 +288,7 @@ export default function PresentClient() {
             </div>
 
             <div className="flex-1 flex flex-col justify-center max-w-6xl w-full mx-auto">
-                {gameState.phase === 'lobby' && (
+                {gameState.phase === GAME_PHASES.LOBBY && (
                     <Card className="text-center p-20 border-dashed border-2 border-border/50 bg-card/30">
                         <CardContent className="pt-6 text-muted-foreground flex flex-col items-center gap-8">
                             <Users className="w-32 h-32 text-indigo-400 opacity-20" />
@@ -303,11 +304,11 @@ export default function PresentClient() {
                         </CardContent>
                     </Card>
                 )}
-                {gameState.phase === 'auction' && renderAuction()}
-                {gameState.phase === 'myth' && renderMyth()}
-                {gameState.phase === 'logo' && renderLogo()}
-                {gameState.phase === 'connection' && renderConnection()}
-                {gameState.phase === 'results' && (
+                {gameState.phase === GAME_PHASES.AUCTION && renderAuction()}
+                {gameState.phase === GAME_PHASES.MYTH && renderMyth()}
+                {gameState.phase === GAME_PHASES.LOGO && renderLogo()}
+                {gameState.phase === GAME_PHASES.CONNECTION && renderConnection()}
+                {gameState.phase === GAME_PHASES.RESULTS && (
                     <div className="animate-in slide-in-from-bottom-10 fade-in duration-700">
                         <ScoreBoard members={gameState.members} />
                     </div>

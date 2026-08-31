@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Brain, CheckCircle2, XCircle, Eye, RotateCcw, ArrowRight } from 'lucide-react';
+import { useMythVote } from '@/hooks/queries/useGameMutations';
 
 interface MythStatement {
     id: string;
@@ -22,11 +23,12 @@ interface MythState {
     statements: MythStatement[];
 }
 
+import { ROLES } from '../../../constants';
+
 interface MythBusterViewProps {
-    role: 'member' | 'admin';
+    role: typeof ROLES[keyof typeof ROLES];
     myth: MythState;
     memberId?: string;
-    onVote?: (vote: 'True' | 'False') => void;
     onOpen?: (mythId: number) => void;
     onReveal?: () => void;
     onClose?: () => void;
@@ -37,12 +39,12 @@ export default function MythBusterView({
     role,
     myth,
     memberId,
-    onVote,
     onOpen,
     onReveal,
     onClose,
     onReset
 }: MythBusterViewProps) {
+    const mythVoteMutation = useMythVote();
     const activeStatement = myth.statements.find((s) => s.no === myth.activeStatementId);
 
     const renderVoteBar = (statement: MythStatement) => {
@@ -69,7 +71,7 @@ export default function MythBusterView({
         );
     };
 
-    if (role === 'member') {
+    if (role === ROLES.MEMBER) {
         if (!activeStatement) {
             return (
                 <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
@@ -103,14 +105,16 @@ export default function MythBusterView({
                                     <Button
                                         size="lg"
                                         className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'True' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent'}`}
-                                        onClick={() => onVote && onVote('True')}
+                                        onClick={() => mythVoteMutation.mutate('True')}
+                                        disabled={mythVoteMutation.isPending}
                                     >
                                         <CheckCircle2 className="w-6 h-6 mr-2" /> TRUE {myVote === 'True' ? '' : ''}
                                     </Button>
                                     <Button
                                         size="lg"
                                         className={`flex-1 h-16 text-lg font-bold border-2 transition-all ${myVote === 'False' ? 'bg-red-500/20 text-red-400 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-red-600 hover:bg-red-700 text-white border-transparent'}`}
-                                        onClick={() => onVote && onVote('False')}
+                                        onClick={() => mythVoteMutation.mutate('False')}
+                                        disabled={mythVoteMutation.isPending}
                                     >
                                         <XCircle className="w-6 h-6 mr-2" /> FALSE {myVote === 'False' ? '' : ''}
                                     </Button>

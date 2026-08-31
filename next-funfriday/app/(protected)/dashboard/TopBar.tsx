@@ -4,8 +4,10 @@ import { Settings, Users, MonitorPlay, PartyPopper, Coins, Brain, LogOut } from 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
+import { ROLES } from '../../../constants';
+
 interface TopBarProps {
-    role: 'member' | 'admin';
+    role: typeof ROLES[keyof typeof ROLES];
     name?: string;
     team?: string;
     points?: number;
@@ -25,7 +27,7 @@ export default function TopBar({
     totalJoined = 0,
     onLogout
 }: TopBarProps) {
-    if (role === 'admin') {
+    if (role === ROLES.ADMIN) {
         return (
             <div className="flex flex-wrap items-center justify-between gap-3 p-4 mb-5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg text-white">
                 <div className="flex items-center gap-2 font-extrabold text-lg tracking-wide">

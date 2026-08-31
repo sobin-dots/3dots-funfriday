@@ -32,8 +32,10 @@ interface MemberData {
     points: number;
 }
 
+import { ROLES } from '../../../constants';
+
 interface AuctionViewProps {
-    role: 'member' | 'admin';
+    role: typeof ROLES[keyof typeof ROLES];
     auction: AuctionState;
     members?: Record<string, MemberData>;
     memberPoints?: number;
@@ -70,7 +72,7 @@ export default function AuctionView({
         if (onBid) onBid(Number(bidAmountInput));
     };
 
-    if (role === 'member') {
+    if (role === ROLES.MEMBER) {
         if (!activeItem) {
             return (
                 <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
