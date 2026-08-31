@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Puzzle, CheckCircle2, RotateCcw, ArrowRight, Eye } from 'lucide-react';
+import { useConnectionSubmit } from '@/hooks/queries/useGameMutations';
 
 interface ConnectionCategory {
     id: string;
@@ -28,11 +29,12 @@ interface ConnectionState {
     puzzles: ConnectionPuzzle[];
 }
 
+import { ROLES } from '../../../constants';
+
 interface ConnectionsGridProps {
-    role: 'member' | 'admin';
+    role: typeof ROLES[keyof typeof ROLES];
     connection: ConnectionState;
     memberId?: string;
-    onSubmit?: (words: string[]) => void;
     onOpen?: (puzzleId: number) => void;
     onRevealCategory?: (categoryName: string) => void;
     onReset?: () => void;
@@ -42,11 +44,11 @@ export default function ConnectionsGrid({
     role,
     connection,
     memberId,
-    onSubmit,
     onOpen,
     onRevealCategory,
     onReset
 }: ConnectionsGridProps) {
+    const connectionSubmitMutation = useConnectionSubmit();
     const [selectedWords, setSelectedWords] = useState<string[]>([]);
 
     const activePuzzle = connection.puzzles.find((p) => p.no === connection.activePuzzleId);
@@ -61,7 +63,7 @@ export default function ConnectionsGrid({
         }
     };
 
-    if (role === 'member') {
+    if (role === ROLES.MEMBER) {
         if (!activePuzzle) {
             return (
                 <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
@@ -95,9 +97,10 @@ export default function ConnectionsGrid({
         };
 
         const handleSubmit = () => {
-            if (selectedWords.length === 4 && onSubmit) {
-                onSubmit(selectedWords);
-                setSelectedWords([]); // Reset selection after submit
+            if (selectedWords.length === 4) {
+                connectionSubmitMutation.mutate(selectedWords, {
+                    onSuccess: () => setSelectedWords([])
+                });
             }
         };
 
@@ -153,7 +156,7 @@ export default function ConnectionsGrid({
                             <Button
                                 size="lg"
                                 className="flex-1 h-14 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
-                                disabled={selectedWords.length !== 4}
+                                disabled={selectedWords.length !== 4 || connectionSubmitMutation.isPending}
                                 onClick={handleSubmit}
                             >
                                 Submit Group ({selectedWords.length}/4)

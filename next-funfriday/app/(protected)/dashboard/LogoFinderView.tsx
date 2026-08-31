@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Palette, CheckCircle2, Eye, RotateCcw, ArrowRight, Filter } from 'lucide-react';
+import { useLogoVote } from '@/hooks/queries/useGameMutations';
 
 interface LogoItem {
     id: string;
@@ -26,11 +27,12 @@ interface LogoState {
     items: LogoItem[];
 }
 
+import { ROLES } from '../../../constants';
+
 interface LogoFinderViewProps {
-    role: 'member' | 'admin';
+    role: typeof ROLES[keyof typeof ROLES];
     logo: LogoState;
     memberId?: string;
-    onVote?: (guess: string) => void;
     onOpen?: (logoId: number) => void;
     onReveal?: () => void;
     onReset?: () => void;
@@ -40,11 +42,11 @@ export default function LogoFinderView({
     role,
     logo,
     memberId,
-    onVote,
     onOpen,
     onReveal,
     onReset
 }: LogoFinderViewProps) {
+    const logoVoteMutation = useLogoVote();
     const [levelFilter, setLevelFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
 
     const activeLogo = logo.items.find((l) => l.no === logo.activeLogoId);
@@ -58,7 +60,7 @@ export default function LogoFinderView({
         }
     };
 
-    if (role === 'member') {
+    if (role === ROLES.MEMBER) {
         if (!activeLogo) {
             return (
                 <Card className="text-center p-10 border-dashed border-2 border-border/50 bg-card/30">
@@ -100,7 +102,8 @@ export default function LogoFinderView({
                                         size="lg"
                                         variant={myVote === opt ? 'default' : 'outline'}
                                         className={`h-16 text-lg font-bold border-2 transition-all ${myVote === opt ? 'bg-pink-600 hover:bg-pink-700 text-white border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.4)]' : 'border-border/50 hover:border-pink-500/50 hover:bg-pink-500/10'}`}
-                                        onClick={() => onVote && onVote(opt)}
+                                        onClick={() => logoVoteMutation.mutate(opt)}
+                                        disabled={logoVoteMutation.isPending}
                                     >
                                         {opt} {myVote === opt && <CheckCircle2 className="w-5 h-5 ml-2" />}
                                     </Button>
@@ -145,7 +148,7 @@ export default function LogoFinderView({
                                         <span className="text-red-400 flex items-center justify-center gap-2">You guessed {myVote}  not quite.</span>
                                     )
                                 ) : (
-                                    <span className="text-muted-foreground">You didn&apos;t guess on this one.</span>
+                                    <span className="text-muted-foreground">You didn't guess on this one.</span>
                                 )}
                             </div>
                         </div>
@@ -163,42 +166,45 @@ export default function LogoFinderView({
             {activeLogo && (
                 <Card className="border-red-500/30 shadow-lg bg-card/50">
                     <CardHeader>
-                        <CardTitle className="flex items-center justify-between text-red-400">
-                            <div className="flex items-center gap-2">
-                                <span className="relative flex h-3 w-3 mr-1">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                                </span>
-                                Live now  Logo #{activeLogo.no}
-                            </div>
-                            <Badge className={`${getLevelColor(activeLogo.level)} font-bold`}>{activeLogo.level.toUpperCase()}</Badge>
+                        <CardTitle className="flex items-center gap-2 text-red-400">
+                            <span className="relative flex h-3 w-3 mr-1">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                            Live now  Logo #{activeLogo.no}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center space-y-6">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 shadow-2xl w-full max-w-xs flex items-center justify-center aspect-square relative overflow-hidden">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={activeLogo.svg} alt="Vintage Logo" className="max-w-full max-h-full object-contain drop-shadow-xl" />
-                        </div>
-                        <p className="text-pink-300 italic text-center font-medium">&quot;{activeLogo.hint}&quot;</p>
-
-                        <div className="w-full grid grid-cols-2 gap-2 text-sm text-muted-foreground text-center">
-                            {activeLogo.options.map(opt => (
-                                <div key={opt} className={`p-2 rounded-lg border ${opt === activeLogo.answer ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10 font-bold' : 'border-border/50 bg-background/50'}`}>
-                                    {opt}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className={`w-full p-4 rounded-xl border ${activeLogo.revealed ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-background/50 border-border/50 opacity-60'}`}>
-                            <div className="font-bold mb-1 flex items-center gap-2">
-                                {activeLogo.revealed ? <CheckCircle2 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                {activeLogo.revealed ? 'Revealed  ' : 'Answer (hidden from members): '}
-                                <span className="text-emerald-400">{activeLogo.answer}</span>
+                    <CardContent className="space-y-6">
+                        <div className="flex flex-col md:flex-row gap-6 items-center">
+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 shadow-inner w-48 h-48 flex items-center justify-center shrink-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={activeLogo.svg} alt="Vintage Logo" className="max-w-full max-h-full object-contain drop-shadow-md" />
                             </div>
-                            <div className="text-sm text-muted-foreground">{activeLogo.explanation}</div>
+                            <div className="flex-1 space-y-4 w-full">
+                                <div>
+                                    <Badge className={`${getLevelColor(activeLogo.level)} mb-2`}>{activeLogo.level.toUpperCase()}</Badge>
+                                    <p className="text-pink-300 italic text-lg font-medium">&quot;{activeLogo.hint}&quot;</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    {activeLogo.options.map((opt) => {
+                                        const isAns = opt === activeLogo.answer;
+                                        const votesForOpt = Object.values(activeLogo.votes).filter(v => v === opt).length;
+                                        return (
+                                            <div key={opt} className={`p-3 rounded-lg border flex justify-between items-center ${isAns ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 font-bold' : 'bg-background/50 border-border/50'}`}>
+                                                <span>{opt} {isAns && ' (Answer)'}</span>
+                                                <Badge variant="secondary">{votesForOpt}</Badge>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="text-sm text-muted-foreground font-medium">
+                                    Total votes: {activeLogo.totalVotes}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="w-full flex flex-wrap sm:flex-nowrap gap-3">
+                        <div className="flex flex-wrap sm:flex-nowrap gap-3 pt-4 border-t border-border/50">
                             <Button
                                 size="lg"
                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
@@ -222,12 +228,13 @@ export default function LogoFinderView({
             )}
 
             <Card className="border-pink-500/20 shadow-sm bg-card/50">
-                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
                     <CardTitle className="flex items-center gap-2 text-xl">
-                        <Palette className="w-5 h-5 text-pink-400" /> Logo Library
+                        <Palette className="w-5 h-5 text-pink-400" /> Logo Database
                     </CardTitle>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex bg-background/50 rounded-lg p-1 border border-border/50">
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center bg-background/50 rounded-lg p-1 border border-border/50">
+                            <Filter className="w-4 h-4 text-muted-foreground mx-2" />
                             {(['all', 'easy', 'medium', 'hard'] as const).map((lvl) => (
                                 <Button
                                     key={lvl}
@@ -236,7 +243,6 @@ export default function LogoFinderView({
                                     className={`h-7 px-3 text-xs capitalize ${levelFilter === lvl ? 'shadow-sm' : ''}`}
                                     onClick={() => setLevelFilter(lvl)}
                                 >
-                                    {lvl === 'all' && <Filter className="w-3 h-3 mr-1" />}
                                     {lvl}
                                 </Button>
                             ))}
@@ -247,30 +253,34 @@ export default function LogoFinderView({
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {filteredItems.map((l) => (
                             <div key={l.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${l.status === 'active' ? 'border-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.2)]' : 'border-border/50 bg-background/50'} ${l.status === 'revealed' ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{l.no}</span>
-                                    <Badge className={`${getLevelColor(l.level)} text-[10px] px-1.5 py-0 h-5`}>{l.level.toUpperCase()}</Badge>
+                                    <div className="flex gap-2">
+                                        <Badge className={getLevelColor(l.level)}>{l.level}</Badge>
+                                        <Badge variant={l.status === 'active' ? 'default' : l.status === 'revealed' ? 'secondary' : 'outline'} className={l.status === 'active' ? 'bg-pink-500' : ''}>
+                                            {l.status}
+                                        </Badge>
+                                    </div>
                                 </div>
-                                <div className="bg-white/5 rounded-lg p-3 flex items-center justify-center h-24 border border-white/10">
+
+                                <div className="bg-white/5 rounded-lg p-3 flex items-center justify-center h-24">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={l.svg} alt="Logo" className="max-w-full max-h-full object-contain opacity-80" />
                                 </div>
-                                <div className="text-center font-bold text-sm text-emerald-400">{l.answer}</div>
 
-                                <div className="pt-3 mt-auto border-t border-border/50 flex items-center justify-between">
-                                    <div className="text-xs text-muted-foreground font-medium">
-                                        {l.totalVotes} votes
-                                    </div>
+                                <div className="font-bold text-center text-emerald-400">{l.answer}</div>
+
+                                <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
                                         variant={l.status === 'active' ? 'secondary' : 'outline'}
                                         size="sm"
-                                        className="h-7 text-xs"
+                                        className="w-full"
                                         onClick={() => onOpen && onOpen(l.no)}
                                     >
-                                        {l.status === 'active' ? 'Re-open' : 'Open'}
+                                        {l.status === 'pending' ? 'Open' : 'Re-open'}
                                     </Button>
                                 </div>
                             </div>
