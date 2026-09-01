@@ -49,7 +49,7 @@ export default function LogoFinderView({
     const logoVoteMutation = useLogoVote();
     const [levelFilter, setLevelFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
 
-    const activeLogo = logo.items.find((l) => l.no === logo.activeLogoId);
+    const activeLogo = logo.items.find((logoItem) => logoItem.no === logo.activeLogoId);
 
     const getLevelColor = (level: string) => {
         switch (level) {
@@ -159,7 +159,7 @@ export default function LogoFinderView({
     }
 
     // Admin View
-    const filteredItems = levelFilter === 'all' ? logo.items : logo.items.filter(i => i.level === levelFilter);
+    const filteredItems = levelFilter === 'all' ? logo.items : logo.items.filter(logoItem => logoItem.level === levelFilter);
 
     return (
         <div className="space-y-6">
@@ -189,7 +189,7 @@ export default function LogoFinderView({
                                 <div className="grid grid-cols-2 gap-2">
                                     {activeLogo.options.map((opt) => {
                                         const isAns = opt === activeLogo.answer;
-                                        const votesForOpt = Object.values(activeLogo.votes).filter(v => v === opt).length;
+                                        const votesForOpt = Object.values(activeLogo.votes).filter(vote => vote === opt).length;
                                         return (
                                             <div key={opt} className={`p-3 rounded-lg border flex justify-between items-center ${isAns ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 font-bold' : 'bg-background/50 border-border/50'}`}>
                                                 <span>{opt} {isAns && ' (Answer)'}</span>
@@ -254,33 +254,33 @@ export default function LogoFinderView({
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        {filteredItems.map((l) => (
-                            <div key={l.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${l.status === GAME_STATUS.ACTIVE ? 'border-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.2)]' : 'border-border/50 bg-background/50'} ${l.status === GAME_STATUS.REVEALED ? 'opacity-60' : ''}`}>
+                        {filteredItems.map((logoItem) => (
+                            <div key={logoItem.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${logoItem.status === GAME_STATUS.ACTIVE ? 'border-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.2)]' : 'border-border/50 bg-background/50'} ${logoItem.status === GAME_STATUS.REVEALED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-muted-foreground">#{l.no}</span>
+                                    <span className="font-bold text-muted-foreground">#{logoItem.no}</span>
                                     <div className="flex gap-2">
-                                        <Badge className={getLevelColor(l.level)}>{l.level}</Badge>
-                                        <Badge variant={l.status === GAME_STATUS.ACTIVE ? 'default' : l.status === GAME_STATUS.REVEALED ? 'secondary' : 'outline'} className={l.status === GAME_STATUS.ACTIVE ? 'bg-pink-500' : ''}>
-                                            {l.status}
+                                        <Badge className={getLevelColor(logoItem.level)}>{logoItem.level}</Badge>
+                                        <Badge variant={logoItem.status === GAME_STATUS.ACTIVE ? 'default' : logoItem.status === GAME_STATUS.REVEALED ? 'secondary' : 'outline'} className={logoItem.status === GAME_STATUS.ACTIVE ? 'bg-pink-500' : ''}>
+                                            {logoItem.status}
                                         </Badge>
                                     </div>
                                 </div>
 
                                 <div className="bg-white/5 rounded-lg p-3 flex items-center justify-center h-24">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={l.svg} alt="Logo" className="max-w-full max-h-full object-contain opacity-80" />
+                                    <img src={logoItem.svg} alt="Logo" className="max-w-full max-h-full object-contain opacity-80" />
                                 </div>
 
-                                <div className="font-bold text-center text-emerald-400">{l.answer}</div>
+                                <div className="font-bold text-center text-emerald-400">{logoItem.answer}</div>
 
                                 <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
-                                        variant={l.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
+                                        variant={logoItem.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
                                         className="w-full"
-                                        onClick={() => onOpen && onOpen(l.no)}
+                                        onClick={() => onOpen && onOpen(logoItem.no)}
                                     >
-                                        {l.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
+                                        {logoItem.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
                                     </Button>
                                 </div>
                             </div>

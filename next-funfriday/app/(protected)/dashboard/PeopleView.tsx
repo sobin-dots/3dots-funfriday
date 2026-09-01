@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, UserMinus, Trash2, Circle } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 
 interface Member {
@@ -56,24 +56,24 @@ export default function PeopleView({ members, onKick, onResetMembers }: PeopleVi
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {memberList.map((m) => (
-                                <TableRow key={m.id} className="border-border/50 hover:bg-background/50 transition-colors">
+                            {memberList.map((member) => (
+                                <TableRow key={member.id} className="border-border/50 hover:bg-background/50 transition-colors">
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <Circle className={`w-3 h-3 fill-current ${m.connected ? 'text-emerald-500' : 'text-muted-foreground/50'}`} />
-                                        <span className={!m.connected ? 'text-muted-foreground' : ''}>{m.name}</span>
+                                        <Circle className={`w-3 h-3 fill-current ${member.connected ? 'text-emerald-500' : 'text-muted-foreground/50'}`} />
+                                        <span className={!member.connected ? 'text-muted-foreground' : ''}>{member.name}</span>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="bg-background/50">{m.team}</Badge>
+                                        <Badge variant="outline" className="bg-background/50">{member.team}</Badge>
                                     </TableCell>
-                                    <TableCell className="text-center font-medium text-indigo-300">{m.points}</TableCell>
-                                    <TableCell className="text-center font-medium text-amber-400">{m.quizScore}</TableCell>
-                                    <TableCell className="text-center text-muted-foreground">{m.wonItems.length}</TableCell>
+                                    <TableCell className="text-center font-medium text-indigo-300">{member.points}</TableCell>
+                                    <TableCell className="text-center font-medium text-amber-400">{member.quizScore}</TableCell>
+                                    <TableCell className="text-center text-muted-foreground">{member.wonItems.length}</TableCell>
                                     <TableCell className="text-right">
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-2"
-                                            onClick={() => onKick && onKick(m.id)}
+                                            onClick={() => onKick && onKick(member.id)}
                                         >
                                             <UserMinus className="w-4 h-4 mr-1" /> Remove
                                         </Button>

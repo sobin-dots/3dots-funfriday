@@ -45,11 +45,11 @@ export default function MythBusterView({
     onReset
 }: MythBusterViewProps) {
     const mythVoteMutation = useMythVote();
-    const activeStatement = myth.statements.find((s) => s.no === myth.activeStatementId);
+    const activeStatement = myth.statements.find((statement) => statement.no === myth.activeStatementId);
 
     const renderVoteBar = (statement: MythStatement) => {
-        const trueVotes = Object.values(statement.votes).filter(v => v === 'True').length;
-        const falseVotes = Object.values(statement.votes).filter(v => v === 'False').length;
+        const trueVotes = Object.values(statement.votes).filter(vote => vote === 'True').length;
+        const falseVotes = Object.values(statement.votes).filter(vote => vote === 'False').length;
         const total = trueVotes + falseVotes;
         const tp = total ? Math.round((trueVotes / total) * 100) : 0;
         const fp = total ? 100 - tp : 0;
@@ -155,25 +155,25 @@ export default function MythBusterView({
                 </Card>
 
                 {/* Past Quizzes Section for Members */}
-                {myth.statements.filter(s => s.status === GAME_STATUS.COMPLETED).length > 0 && (
+                {myth.statements.filter(statement => statement.status === GAME_STATUS.COMPLETED).length > 0 && (
                     <div className="mt-8 space-y-4">
                         <h3 className="text-xl font-bold flex items-center gap-2 text-muted-foreground">
                             <RotateCcw className="w-5 h-5" /> Past Quizzes
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
-                            {myth.statements.filter(s => s.status === GAME_STATUS.COMPLETED).map((s) => {
-                                const pastVote = memberId ? s.votes[memberId] : null;
-                                const isCorrect = pastVote === s.answer;
+                            {myth.statements.filter(statement => statement.status === GAME_STATUS.COMPLETED).map((statement) => {
+                                const pastVote = memberId ? statement.votes[memberId] : null;
+                                const isCorrect = pastVote === statement.answer;
                                 return (
-                                    <Card key={s.id} className="border-border/50 bg-card/30 opacity-80">
+                                    <Card key={statement.id} className="border-border/50 bg-card/30 opacity-80">
                                         <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                                             <div className="flex-1">
-                                                <div className="font-bold text-sm mb-1">#{s.no} {s.text}</div>
-                                                <div className="text-xs text-muted-foreground">{s.explanation}</div>
+                                                <div className="font-bold text-sm mb-1">#{statement.no} {statement.text}</div>
+                                                <div className="text-xs text-muted-foreground">{statement.explanation}</div>
                                             </div>
                                             <div className="flex flex-col items-end gap-1 min-w-[120px]">
-                                                <Badge variant="outline" className={s.answer === 'True' ? 'text-emerald-400 border-emerald-500/30' : 'text-red-400 border-red-500/30'}>
-                                                    Answer: {s.answer.toUpperCase()}
+                                                <Badge variant="outline" className={statement.answer === 'True' ? 'text-emerald-400 border-emerald-500/30' : 'text-red-400 border-red-500/30'}>
+                                                    Answer: {statement.answer.toUpperCase()}
                                                 </Badge>
                                                 {pastVote && (
                                                     <div className={`text-xs font-medium flex items-center gap-1 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -267,26 +267,26 @@ export default function MythBusterView({
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {myth.statements.map((s) => (
-                            <div key={s.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${s.status === GAME_STATUS.ACTIVE ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${s.status === GAME_STATUS.COMPLETED ? 'opacity-60' : ''}`}>
+                        {myth.statements.map((statement) => (
+                            <div key={statement.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${statement.status === GAME_STATUS.ACTIVE ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${statement.status === GAME_STATUS.COMPLETED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-muted-foreground">#{s.no}</span>
-                                    <Badge variant={s.status === GAME_STATUS.ACTIVE ? 'default' : s.status === GAME_STATUS.COMPLETED ? 'secondary' : 'outline'} className={s.status === GAME_STATUS.ACTIVE ? 'bg-purple-500' : s.status === GAME_STATUS.COMPLETED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
-                                        {s.status}
+                                    <span className="font-bold text-muted-foreground">#{statement.no}</span>
+                                    <Badge variant={statement.status === GAME_STATUS.ACTIVE ? 'default' : statement.status === GAME_STATUS.COMPLETED ? 'secondary' : 'outline'} className={statement.status === GAME_STATUS.ACTIVE ? 'bg-purple-500' : statement.status === GAME_STATUS.COMPLETED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                        {statement.status}
                                     </Badge>
                                 </div>
-                                <div className="font-bold text-sm leading-relaxed flex-1">{s.text}</div>
+                                <div className="font-bold text-sm leading-relaxed flex-1">{statement.text}</div>
 
                                 <div className="pt-3 mt-auto border-t border-border/50 flex items-center justify-between">
                                     <div className="text-xs text-muted-foreground font-medium">
-                                        {s.totalVotes} votes
+                                        {statement.totalVotes} votes
                                     </div>
                                     <Button
-                                        variant={s.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
+                                        variant={statement.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
-                                        onClick={() => onOpen && onOpen(s.no)}
+                                        onClick={() => onOpen && onOpen(statement.no)}
                                     >
-                                        {s.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open question'}
+                                        {statement.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open question'}
                                     </Button>
                                 </div>
                             </div>

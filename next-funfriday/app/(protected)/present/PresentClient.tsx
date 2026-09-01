@@ -23,10 +23,10 @@ export default function PresentClient() {
         );
     }
 
-    const onlineCount = Object.values(gameState.members).filter((m) => m.connected).length;
+    const onlineCount = Object.values(gameState.members).filter((member) => member.connected).length;
 
     const renderAuction = () => {
-        const activeItem = gameState.auction.items.find((i: { no: number }) => i.no === gameState.auction.activeItemId);
+        const activeItem = gameState.auction.items.find((item: { no: number }) => item.no === gameState.auction.activeItemId);
         if (!activeItem) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-indigo-500/30 bg-indigo-500/5">
@@ -77,8 +77,8 @@ export default function PresentClient() {
             );
         }
 
-        const trueVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(v => v === 'True').length;
-        const falseVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(v => v === 'False').length;
+        const trueVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(vote => vote === 'True').length;
+        const falseVotesCount = Object.values(activeStatement.votes as Record<string, string>).filter(vote => vote === 'False').length;
         const totalVotes = trueVotesCount + falseVotesCount;
         const truePercentage = totalVotes ? Math.round((trueVotesCount / totalVotes) * 100) : 0;
         const falsePercentage = totalVotes ? 100 - truePercentage : 0;
@@ -126,7 +126,7 @@ export default function PresentClient() {
     };
 
     const renderLogo = () => {
-        const activeLogo = gameState.logo.items.find((i: { no: number }) => i.no === gameState.logo.activeLogoId);
+        const activeLogo = gameState.logo.items.find((item: { no: number }) => item.no === gameState.logo.activeLogoId);
         if (!activeLogo) {
             return (
                 <Card className="text-center p-16 border-dashed border-2 border-pink-500/30 bg-pink-500/5">

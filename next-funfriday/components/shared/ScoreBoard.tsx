@@ -29,14 +29,14 @@ export default function ScoreBoard({ members }: ScoreBoardProps) {
     // Calculate team stats from members
     const teamMap: Record<string, { members: number; quizScore: number; pointsLeft: number; itemsWon: number }> = {};
 
-    Object.values(members).forEach((m) => {
-        if (!teamMap[m.team]) {
-            teamMap[m.team] = { members: 0, quizScore: 0, pointsLeft: 0, itemsWon: 0 };
+    Object.values(members).forEach((member) => {
+        if (!teamMap[member.team]) {
+            teamMap[member.team] = { members: 0, quizScore: 0, pointsLeft: 0, itemsWon: 0 };
         }
-        teamMap[m.team].members += 1;
-        teamMap[m.team].quizScore += m.quizScore;
-        teamMap[m.team].pointsLeft += m.points;
-        teamMap[m.team].itemsWon += m.wonItems.length;
+        teamMap[member.team].members += 1;
+        teamMap[member.team].quizScore += member.quizScore;
+        teamMap[member.team].pointsLeft += member.points;
+        teamMap[member.team].itemsWon += member.wonItems.length;
     });
 
     // Convert to array and sort by quizScore (descending), then pointsLeft (descending)

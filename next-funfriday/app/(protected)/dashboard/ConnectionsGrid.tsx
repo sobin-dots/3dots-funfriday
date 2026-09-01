@@ -51,7 +51,7 @@ export default function ConnectionsGrid({
     const connectionSubmitMutation = useConnectionSubmit();
     const [selectedWords, setSelectedWords] = useState<string[]>([]);
 
-    const activePuzzle = connection.puzzles.find((p) => p.no === connection.activePuzzleId);
+    const activePuzzle = connection.puzzles.find((puzzle) => puzzle.no === connection.activePuzzleId);
 
     const getCategoryColor = (level: string) => {
         switch (level) {
@@ -77,15 +77,15 @@ export default function ConnectionsGrid({
 
         // Find which categories this member has solved (or admin has revealed)
         const solvedCatNames = activePuzzle.categories
-            .filter((c) => c.solvedBy.includes(memberId || '') || activePuzzle.revealedCategories.includes(c.name))
-            .map((c) => c.name);
+            .filter((category) => category.solvedBy.includes(memberId || '') || activePuzzle.revealedCategories.includes(category.name))
+            .map((category) => category.name);
 
-        const solvedCategories = activePuzzle.categories.filter((c) => solvedCatNames.includes(c.name));
+        const solvedCategories = activePuzzle.categories.filter((category) => solvedCatNames.includes(category.name));
 
         // Get all remaining unsolved words
         const unsolvedWords = activePuzzle.categories
-            .filter((c) => !solvedCatNames.includes(c.name))
-            .flatMap((c) => c.words);
+            .filter((category) => !solvedCatNames.includes(category.name))
+            .flatMap((category) => category.words);
 
         const toggleWord = (word: string) => {
             if (selectedWords.includes(word)) {
@@ -117,10 +117,10 @@ export default function ConnectionsGrid({
                     {/* Solved Banners */}
                     {solvedCategories.length > 0 && (
                         <div className="space-y-2">
-                            {solvedCategories.map((c) => (
-                                <div key={c.name} className={`p-4 rounded-xl text-center shadow-sm animate-in zoom-in duration-300 ${getCategoryColor(c.level)}`}>
-                                    <div className="font-black text-lg uppercase tracking-wider mb-1">{c.name}</div>
-                                    <div className="font-semibold opacity-90 tracking-wide">{c.words.join('  ')}</div>
+                            {solvedCategories.map((category) => (
+                                <div key={category.name} className={`p-4 rounded-xl text-center shadow-sm animate-in zoom-in duration-300 ${getCategoryColor(category.level)}`}>
+                                    <div className="font-black text-lg uppercase tracking-wider mb-1">{category.name}</div>
+                                    <div className="font-semibold opacity-90 tracking-wide">{category.words.join('  ')}</div>
                                 </div>
                             ))}
                         </div>
@@ -242,25 +242,25 @@ export default function ConnectionsGrid({
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        {connection.puzzles.map((pz) => (
-                            <div key={pz.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${pz.status === GAME_STATUS.ACTIVE ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-border/50 bg-background/50'} ${pz.status === GAME_STATUS.SOLVED ? 'opacity-60' : ''}`}>
+                        {connection.puzzles.map((puzzle) => (
+                            <div key={puzzle.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${puzzle.status === GAME_STATUS.ACTIVE ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-border/50 bg-background/50'} ${puzzle.status === GAME_STATUS.SOLVED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-muted-foreground">#{pz.no}</span>
-                                    <Badge variant={pz.status === GAME_STATUS.ACTIVE ? 'default' : pz.status === GAME_STATUS.SOLVED ? 'secondary' : 'outline'} className={pz.status === GAME_STATUS.ACTIVE ? 'bg-blue-500' : pz.status === GAME_STATUS.SOLVED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
-                                        {pz.status}
+                                    <span className="font-bold text-muted-foreground">#{puzzle.no}</span>
+                                    <Badge variant={puzzle.status === GAME_STATUS.ACTIVE ? 'default' : puzzle.status === GAME_STATUS.SOLVED ? 'secondary' : 'outline'} className={puzzle.status === GAME_STATUS.ACTIVE ? 'bg-blue-500' : puzzle.status === GAME_STATUS.SOLVED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                        {puzzle.status}
                                     </Badge>
                                 </div>
-                                <div className="font-bold text-lg leading-tight">{pz.title}</div>
+                                <div className="font-bold text-lg leading-tight">{puzzle.title}</div>
                                 <div className="text-sm text-muted-foreground italic flex-1">4 categories  16 words</div>
 
                                 <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
-                                        variant={pz.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
+                                        variant={puzzle.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
                                         className="w-full"
-                                        onClick={() => onOpen && onOpen(pz.no)}
+                                        onClick={() => onOpen && onOpen(puzzle.no)}
                                     >
-                                        {pz.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
+                                        {puzzle.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
                                     </Button>
                                 </div>
                             </div>

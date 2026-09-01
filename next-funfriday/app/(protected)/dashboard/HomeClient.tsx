@@ -44,7 +44,7 @@ export default function HomeClient() {
     }
 
     const currentMember = gameState.members[memberId];
-    const onlineCount = Object.values(gameState.members).filter((m) => m.connected).length;
+    const onlineCount = Object.values(gameState.members).filter((member) => member.connected).length;
     const totalJoined = Object.keys(gameState.members).length;
 
     return (
@@ -169,7 +169,7 @@ export default function HomeClient() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {currentMember.wonItems.map((itemNo: number) => {
-                            const item = gameState.auction.items.find((i) => i.no === itemNo);
+                            const item = gameState.auction.items.find((item) => item.no === itemNo);
                             return (
                                 <div key={itemNo} className="p-4 rounded-xl border border-border/50 bg-background/50 space-y-3">
                                     <div className="font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> {item?.name}</div>
@@ -180,8 +180,8 @@ export default function HomeClient() {
                                             maxLength={240}
                                             placeholder="Why do you want this? (optional)"
                                             defaultValue={item?.reason || ''}
-                                            onBlur={(e) => {
-                                                auctionReasonMutation.mutate({ itemId: itemNo, reason: e.target.value });
+                                            onBlur={(event) => {
+                                                auctionReasonMutation.mutate({ itemId: itemNo, reason: event.target.value });
                                             }}
                                         />
                                         <Button variant="secondary" size="sm" disabled className="opacity-70">Saved automatically</Button>

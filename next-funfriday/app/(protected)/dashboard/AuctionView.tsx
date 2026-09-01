@@ -59,7 +59,7 @@ export default function AuctionView({
     onReset
 }: AuctionViewProps) {
     const [bidAmount, setBidAmount] = useState<string>('');
-    const activeItem = auction.items.find((i) => i.no === auction.activeItemId);
+    const activeItem = auction.items.find((item) => item.no === auction.activeItemId);
 
     const topBidder = activeItem?.currentBidderId && members ? members[activeItem.currentBidderId] : null;
     const topBidderName = topBidder?.name;
@@ -114,9 +114,9 @@ export default function AuctionView({
                                     max={memberPoints}
                                     placeholder={`Your bid (max ${memberPoints})`}
                                     value={bidAmount}
-                                    onChange={(e) => setBidAmount(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && canBid) {
+                                    onChange={(event) => setBidAmount(event.target.value)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter' && canBid) {
                                             handlePlaceBid();
                                         }
                                     }}
@@ -217,33 +217,33 @@ export default function AuctionView({
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        {auction.items.map((i) => (
-                            <div key={i.id} className={`flex flex-col gap-2 p-4 rounded-xl border ${i.status === GAME_STATUS.ACTIVE ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-border/50 bg-background/50'} ${i.status === GAME_STATUS.SOLD ? 'opacity-60' : ''}`}>
+                        {auction.items.map((item) => (
+                            <div key={item.id} className={`flex flex-col gap-2 p-4 rounded-xl border ${item.status === GAME_STATUS.ACTIVE ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-border/50 bg-background/50'} ${item.status === GAME_STATUS.SOLD ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-muted-foreground">#{i.no}</span>
-                                    <Badge variant={i.status === GAME_STATUS.ACTIVE ? 'default' : i.status === GAME_STATUS.SOLD ? 'secondary' : 'outline'} className={i.status === GAME_STATUS.ACTIVE ? 'bg-indigo-500' : i.status === GAME_STATUS.SOLD ? 'bg-emerald-500/20 text-emerald-400' : ''}>
-                                        {i.status}
+                                    <span className="font-bold text-muted-foreground">#{item.no}</span>
+                                    <Badge variant={item.status === GAME_STATUS.ACTIVE ? 'default' : item.status === GAME_STATUS.SOLD ? 'secondary' : 'outline'} className={item.status === GAME_STATUS.ACTIVE ? 'bg-indigo-500' : item.status === GAME_STATUS.SOLD ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                        {item.status}
                                     </Badge>
                                 </div>
-                                <div className="font-bold text-lg leading-tight">{i.name}</div>
-                                <div className="text-sm text-muted-foreground italic flex-1">{i.why}</div>
+                                <div className="font-bold text-lg leading-tight">{item.name}</div>
+                                <div className="text-sm text-muted-foreground italic flex-1">{item.why}</div>
 
                                 <div className="pt-2 mt-auto border-t border-border/50">
-                                    {i.status === GAME_STATUS.SOLD ? (
+                                    {item.status === GAME_STATUS.SOLD ? (
                                         <div className="text-sm text-emerald-400">
-                                            <div className="flex items-center gap-1 font-bold"><CheckCircle2 className="w-4 h-4" /> Won for {i.winningBid} pts</div>
-                                            {i.reason && (
-                                                <div className="mt-1 text-muted-foreground italic text-xs">&quot;{i.reason}&quot;</div>
+                                            <div className="flex items-center gap-1 font-bold"><CheckCircle2 className="w-4 h-4" /> Won for {item.winningBid} pts</div>
+                                            {item.reason && (
+                                                <div className="mt-1 text-muted-foreground italic text-xs">&quot;{item.reason}&quot;</div>
                                             )}
                                         </div>
                                     ) : (
                                         <Button
-                                            variant={i.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
+                                            variant={item.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                             size="sm"
                                             className="w-full"
-                                            onClick={() => onOpenItem && onOpenItem(i.no)}
+                                            onClick={() => onOpenItem && onOpenItem(item.no)}
                                         >
-                                            {i.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open for bidding'}
+                                            {item.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open for bidding'}
                                         </Button>
                                     )}
                                 </div>
