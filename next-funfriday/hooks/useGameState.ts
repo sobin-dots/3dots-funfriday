@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { GameState } from '../types';
 import { SOCKET_EVENTS, ROLES } from '../constants';
@@ -12,6 +12,13 @@ export function useGameState(isSpectator: boolean = false) {
     const [role, setRole] = useState<typeof ROLES[keyof typeof ROLES]>(ROLES.GUEST);
     const [memberId, setMemberId] = useState<string>('');
     const router = useRouter();
+
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setRole(ROLES.GUEST);
+        router.push('/login');
+    }, [router]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -27,7 +34,7 @@ export function useGameState(isSpectator: boolean = false) {
                 const user = JSON.parse(userStr);
                 setRole(user.role === ROLES.USER ? ROLES.MEMBER : ROLES.ADMIN);
                 setMemberId(user.id);
-            } catch (e) { }
+            } catch { }
         }
 
         socket = io({
@@ -40,7 +47,7 @@ export function useGameState(isSpectator: boolean = false) {
             }
         });
 
-        socket.on('connect_error', (err) => {
+        socket.on('connect_error', () => {
             if (!isSpectator) {
                 toast.error('Session expired or invalid. Please log in again.');
                 handleLogout();
@@ -54,14 +61,7 @@ export function useGameState(isSpectator: boolean = false) {
         return () => {
             socket.disconnect();
         };
-    }, [isSpectator, router]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setRole(ROLES.GUEST);
-        router.push('/login');
-    };
+    }, [isSpectator, router, handleLogout]);
 
     return {
         socket,

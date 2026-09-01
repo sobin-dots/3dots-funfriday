@@ -29,7 +29,7 @@ export const useLogoVote = () => {
 export const useConnectionSubmit = () => {
     return useMutation({
         mutationFn: (words: string[]) => apiClient.post('/api/connection/submit', { words }),
-        onSuccess: (res: any) => {
+        onSuccess: (res: { matched: boolean; category?: string; oneAway?: boolean }) => {
             if (res.matched) {
                 toast.success(`🎉 Group solved: ${res.category}! (+25 pts)`);
             } else if (res.oneAway) {

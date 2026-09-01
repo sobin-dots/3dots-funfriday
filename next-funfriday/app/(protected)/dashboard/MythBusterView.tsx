@@ -23,7 +23,7 @@ interface MythState {
     statements: MythStatement[];
 }
 
-import { ROLES } from '../../../constants';
+import { ROLES, GAME_STATUS } from '../../../constants';
 
 interface MythBusterViewProps {
     role: typeof ROLES[keyof typeof ROLES];
@@ -155,13 +155,13 @@ export default function MythBusterView({
                 </Card>
 
                 {/* Past Quizzes Section for Members */}
-                {myth.statements.filter(s => s.status === 'completed').length > 0 && (
+                {myth.statements.filter(s => s.status === GAME_STATUS.COMPLETED).length > 0 && (
                     <div className="mt-8 space-y-4">
                         <h3 className="text-xl font-bold flex items-center gap-2 text-muted-foreground">
                             <RotateCcw className="w-5 h-5" /> Past Quizzes
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
-                            {myth.statements.filter(s => s.status === 'completed').map((s) => {
+                            {myth.statements.filter(s => s.status === GAME_STATUS.COMPLETED).map((s) => {
                                 const pastVote = memberId ? s.votes[memberId] : null;
                                 const isCorrect = pastVote === s.answer;
                                 return (
@@ -268,10 +268,10 @@ export default function MythBusterView({
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {myth.statements.map((s) => (
-                            <div key={s.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${s.status === 'active' ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${s.status === 'completed' ? 'opacity-60' : ''}`}>
+                            <div key={s.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${s.status === GAME_STATUS.ACTIVE ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'border-border/50 bg-background/50'} ${s.status === GAME_STATUS.COMPLETED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{s.no}</span>
-                                    <Badge variant={s.status === 'active' ? 'default' : s.status === 'completed' ? 'secondary' : 'outline'} className={s.status === 'active' ? 'bg-purple-500' : s.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                    <Badge variant={s.status === GAME_STATUS.ACTIVE ? 'default' : s.status === GAME_STATUS.COMPLETED ? 'secondary' : 'outline'} className={s.status === GAME_STATUS.ACTIVE ? 'bg-purple-500' : s.status === GAME_STATUS.COMPLETED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
                                         {s.status}
                                     </Badge>
                                 </div>
@@ -282,11 +282,11 @@ export default function MythBusterView({
                                         {s.totalVotes} votes
                                     </div>
                                     <Button
-                                        variant={s.status === 'active' ? 'secondary' : 'outline'}
+                                        variant={s.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
                                         onClick={() => onOpen && onOpen(s.no)}
                                     >
-                                        {s.status === 'active' ? 'Re-open' : 'Open question'}
+                                        {s.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open question'}
                                     </Button>
                                 </div>
                             </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ interface MemberData {
     points: number;
 }
 
-import { ROLES } from '../../../constants';
+import { ROLES, GAME_STATUS } from '../../../constants';
 
 interface AuctionViewProps {
     role: typeof ROLES[keyof typeof ROLES];
@@ -57,6 +58,7 @@ export default function AuctionView({
     onCancel,
     onReset
 }: AuctionViewProps) {
+    const [bidAmount, setBidAmount] = useState<string>('');
     const activeItem = auction.items.find((i) => i.no === auction.activeItemId);
 
     const topBidder = activeItem?.currentBidderId && members ? members[activeItem.currentBidderId] : null;
@@ -64,12 +66,14 @@ export default function AuctionView({
     const [topBidderFirstName] = topBidderName ? topBidderName.split(' ') : [''];
 
     const handlePlaceBid = () => {
-        const bidAmountInput = (document.getElementById('bid-amount') as HTMLInputElement).value;
-        if (!bidAmountInput) {
+        if (!bidAmount) {
             toast.error("Please enter a bid amount");
             return;
         }
-        if (onBid) onBid(Number(bidAmountInput));
+        if (onBid) {
+            onBid(Number(bidAmount));
+            setBidAmount(''); // Clear input after bid
+        }
     };
 
     if (role === ROLES.MEMBER) {
@@ -84,7 +88,7 @@ export default function AuctionView({
             );
         }
 
-        const canBid = activeItem.status === 'active';
+        const canBid = activeItem.status === GAME_STATUS.ACTIVE;
 
         return (
             <Card className="border-indigo-500/20 shadow-lg bg-card/50">
@@ -109,6 +113,13 @@ export default function AuctionView({
                                     min={activeItem.currentBid + 1}
                                     max={memberPoints}
                                     placeholder={`Your bid (max ${memberPoints})`}
+                                    value={bidAmount}
+                                    onChange={(e) => setBidAmount(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && canBid) {
+                                            handlePlaceBid();
+                                        }
+                                    }}
                                 />
                                 <Button size="lg" className="py-6 px-8 text-lg font-bold bg-indigo-600 hover:bg-indigo-700" onClick={handlePlaceBid}>
                                     Place bid
@@ -207,10 +218,10 @@ export default function AuctionView({
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {auction.items.map((i) => (
-                            <div key={i.id} className={`flex flex-col gap-2 p-4 rounded-xl border ${i.status === 'active' ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-border/50 bg-background/50'} ${i.status === 'sold' ? 'opacity-60' : ''}`}>
+                            <div key={i.id} className={`flex flex-col gap-2 p-4 rounded-xl border ${i.status === GAME_STATUS.ACTIVE ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-border/50 bg-background/50'} ${i.status === GAME_STATUS.SOLD ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{i.no}</span>
-                                    <Badge variant={i.status === 'active' ? 'default' : i.status === 'sold' ? 'secondary' : 'outline'} className={i.status === 'active' ? 'bg-indigo-500' : i.status === 'sold' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                    <Badge variant={i.status === GAME_STATUS.ACTIVE ? 'default' : i.status === GAME_STATUS.SOLD ? 'secondary' : 'outline'} className={i.status === GAME_STATUS.ACTIVE ? 'bg-indigo-500' : i.status === GAME_STATUS.SOLD ? 'bg-emerald-500/20 text-emerald-400' : ''}>
                                         {i.status}
                                     </Badge>
                                 </div>
@@ -218,7 +229,7 @@ export default function AuctionView({
                                 <div className="text-sm text-muted-foreground italic flex-1">{i.why}</div>
 
                                 <div className="pt-2 mt-auto border-t border-border/50">
-                                    {i.status === 'sold' ? (
+                                    {i.status === GAME_STATUS.SOLD ? (
                                         <div className="text-sm text-emerald-400">
                                             <div className="flex items-center gap-1 font-bold"><CheckCircle2 className="w-4 h-4" /> Won for {i.winningBid} pts</div>
                                             {i.reason && (
@@ -227,12 +238,12 @@ export default function AuctionView({
                                         </div>
                                     ) : (
                                         <Button
-                                            variant={i.status === 'active' ? 'secondary' : 'outline'}
+                                            variant={i.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                             size="sm"
                                             className="w-full"
                                             onClick={() => onOpenItem && onOpenItem(i.no)}
                                         >
-                                            {i.status === 'active' ? 'Re-open' : 'Open for bidding'}
+                                            {i.status === GAME_STATUS.ACTIVE ? 'Re-open' : 'Open for bidding'}
                                         </Button>
                                     )}
                                 </div>

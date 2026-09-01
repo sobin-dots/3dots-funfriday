@@ -29,7 +29,7 @@ interface ConnectionState {
     puzzles: ConnectionPuzzle[];
 }
 
-import { ROLES } from '../../../constants';
+import { ROLES, GAME_STATUS } from '../../../constants';
 
 interface ConnectionsGridProps {
     role: typeof ROLES[keyof typeof ROLES];
@@ -243,10 +243,10 @@ export default function ConnectionsGrid({
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {connection.puzzles.map((pz) => (
-                            <div key={pz.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${pz.status === 'active' ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-border/50 bg-background/50'}`}>
+                            <div key={pz.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${pz.status === GAME_STATUS.ACTIVE ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-border/50 bg-background/50'} ${pz.status === GAME_STATUS.SOLVED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{pz.no}</span>
-                                    <Badge variant={pz.status === 'active' ? 'default' : pz.status === 'solved' ? 'secondary' : 'outline'} className={pz.status === 'active' ? 'bg-blue-500' : pz.status === 'solved' ? 'bg-emerald-500/20 text-emerald-400' : ''}>
+                                    <Badge variant={pz.status === GAME_STATUS.ACTIVE ? 'default' : pz.status === GAME_STATUS.SOLVED ? 'secondary' : 'outline'} className={pz.status === GAME_STATUS.ACTIVE ? 'bg-blue-500' : pz.status === GAME_STATUS.SOLVED ? 'bg-emerald-500/20 text-emerald-400' : ''}>
                                         {pz.status}
                                     </Badge>
                                 </div>
@@ -255,12 +255,12 @@ export default function ConnectionsGrid({
 
                                 <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
-                                        variant={pz.status === 'active' ? 'secondary' : 'outline'}
+                                        variant={pz.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
                                         className="w-full"
                                         onClick={() => onOpen && onOpen(pz.no)}
                                     >
-                                        {pz.status === 'pending' ? 'Open' : 'Re-open'}
+                                        {pz.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
                                     </Button>
                                 </div>
                             </div>

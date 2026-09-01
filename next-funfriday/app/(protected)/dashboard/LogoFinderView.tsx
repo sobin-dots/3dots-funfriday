@@ -27,7 +27,7 @@ interface LogoState {
     items: LogoItem[];
 }
 
-import { ROLES } from '../../../constants';
+import { ROLES, GAME_STATUS } from '../../../constants';
 
 interface LogoFinderViewProps {
     role: typeof ROLES[keyof typeof ROLES];
@@ -255,12 +255,12 @@ export default function LogoFinderView({
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {filteredItems.map((l) => (
-                            <div key={l.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${l.status === 'active' ? 'border-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.2)]' : 'border-border/50 bg-background/50'} ${l.status === 'revealed' ? 'opacity-60' : ''}`}>
+                            <div key={l.id} className={`flex flex-col gap-3 p-4 rounded-xl border ${l.status === GAME_STATUS.ACTIVE ? 'border-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.2)]' : 'border-border/50 bg-background/50'} ${l.status === GAME_STATUS.REVEALED ? 'opacity-60' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-muted-foreground">#{l.no}</span>
                                     <div className="flex gap-2">
                                         <Badge className={getLevelColor(l.level)}>{l.level}</Badge>
-                                        <Badge variant={l.status === 'active' ? 'default' : l.status === 'revealed' ? 'secondary' : 'outline'} className={l.status === 'active' ? 'bg-pink-500' : ''}>
+                                        <Badge variant={l.status === GAME_STATUS.ACTIVE ? 'default' : l.status === GAME_STATUS.REVEALED ? 'secondary' : 'outline'} className={l.status === GAME_STATUS.ACTIVE ? 'bg-pink-500' : ''}>
                                             {l.status}
                                         </Badge>
                                     </div>
@@ -275,12 +275,12 @@ export default function LogoFinderView({
 
                                 <div className="pt-3 mt-auto border-t border-border/50">
                                     <Button
-                                        variant={l.status === 'active' ? 'secondary' : 'outline'}
+                                        variant={l.status === GAME_STATUS.ACTIVE ? 'secondary' : 'outline'}
                                         size="sm"
                                         className="w-full"
                                         onClick={() => onOpen && onOpen(l.no)}
                                     >
-                                        {l.status === 'pending' ? 'Open' : 'Re-open'}
+                                        {l.status === GAME_STATUS.PENDING ? 'Open' : 'Re-open'}
                                     </Button>
                                 </div>
                             </div>

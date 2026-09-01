@@ -23,7 +23,7 @@ export default function PresentClient() {
         );
     }
 
-    const onlineCount = Object.values(gameState.members).filter((m: any) => m.connected).length;
+    const onlineCount = Object.values(gameState.members).filter((m) => m.connected).length;
 
     const renderAuction = () => {
         const activeItem = gameState.auction.items.find((i: { no: number }) => i.no === gameState.auction.activeItemId);
