@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { GameState } from '../types';
-import { SOCKET_EVENTS } from '../constants/events';
+import { SOCKET_EVENTS, ROLES } from '../constants';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 

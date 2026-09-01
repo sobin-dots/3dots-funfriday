@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { verifyToken } from '@/lib/jwt';
-import { AppError, AuthenticationError, ValidationError } from '@/lib/errors';
+import { AppError, createAuthenticationError, createValidationError } from '@/lib/errors';
 
 /**
  * Extracts and verifies the JWT token from the Request's Authorization header.
@@ -11,14 +11,14 @@ export function getCurrentUserFromRequest(req: Request) {
     const authHeader = req.headers.get('authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new AuthenticationError('Missing or invalid authorization header');
+        throw createAuthenticationError('Missing or invalid authorization header');
     }
 
     const [, token] = authHeader.split(' ');
     const user = verifyToken(token) as { id: string; role: string; email: string; name: string; team: string } | null;
 
     if (!user || !user.id) {
-        throw new AuthenticationError('Invalid or expired token');
+        throw createAuthenticationError('Invalid or expired token');
     }
 
     return user;
@@ -33,7 +33,7 @@ export async function validateBody<T>(req: Request, schema: z.ZodSchema<T>): Pro
     try {
         body = await req.json();
     } catch (error) {
-        throw new ValidationError('Invalid JSON payload');
+        throw createValidationError('Invalid JSON payload');
     }
 
     const validationResult = schema.safeParse(body);
@@ -42,7 +42,7 @@ export async function validateBody<T>(req: Request, schema: z.ZodSchema<T>): Pro
         const errorMessage = validationResult.error.issues
             .map((issue) => issue.message)
             .join(', ');
-        throw new ValidationError(errorMessage);
+        throw createValidationError(errorMessage);
     }
 
     return validationResult.data;
@@ -53,10 +53,11 @@ export async function validateBody<T>(req: Request, schema: z.ZodSchema<T>): Pro
  * Formats AppErrors and catches unexpected errors.
  */
 export function handleApiError(error: unknown) {
-    if (error instanceof AppError) {
+    if (error && typeof error === 'object' && 'isAppError' in error) {
+        const appError = error as AppError;
         return NextResponse.json(
-            { error: error.message },
-            { status: error.statusCode }
+            { error: appError.message },
+            { status: appError.statusCode }
         );
     }
 

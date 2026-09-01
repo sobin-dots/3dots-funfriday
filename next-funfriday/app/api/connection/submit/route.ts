@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getCurrentUserFromRequest, validateBody, handleApiError } from '@/lib/api-utils';
+import { validateBody } from '@/lib/api-utils';
 import { connectionSubmitSchema } from '@/lib/validations/game';
-import { ConnectionService } from '@/lib/services/connection.service';
+import { submitGroup } from '@/lib/services/connection.service';
+import { withUser } from '@/lib/auth/withUser';
 
-export async function POST(req: Request) {
-    try {
-        const user = getCurrentUserFromRequest(req);
-        const payload = await validateBody(req, connectionSubmitSchema);
-
-        const response = await ConnectionService.submitGroup(user.id, payload);
-
-        return NextResponse.json(response);
-    } catch (error) {
-        return handleApiError(error);
-    }
-}
+export const POST = withUser(async (req, user) => {
+    const payload = await validateBody(req, connectionSubmitSchema);
+    const response = await submitGroup(user.id, payload);
+    return NextResponse.json(response);
+});

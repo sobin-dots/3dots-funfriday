@@ -15,15 +15,19 @@ export const SOCKET_EVENTS = {
     AUCTION_BID: 'auction:bid',
     AUCTION_SELL: 'auction:sell',
     AUCTION_CANCEL: 'auction:cancel',
+    AUCTION_REASON: 'auction:reason',
 
     MYTH_OPEN: 'myth:open',
+    MYTH_VOTE: 'myth:vote',
     MYTH_REVEAL: 'myth:reveal',
     MYTH_CLOSE: 'myth:close',
 
     LOGO_OPEN: 'logo:open',
+    LOGO_VOTE: 'logo:vote',
     LOGO_REVEAL: 'logo:reveal',
 
     CONNECTION_OPEN: 'connection:open',
+    CONNECTION_SUBMIT: 'connection:submit',
     CONNECTION_REVEAL_GROUP: 'connection:revealGroup',
 } as const;
 

@@ -9,7 +9,7 @@ import ConnectionsGrid from './ConnectionsGrid';
 import ScoreBoard from '@/components/shared/ScoreBoard';
 import PeopleView from './PeopleView';
 import { useGameState } from '../../../hooks/useGameState';
-import { SOCKET_EVENTS } from '../../../constants/events';
+import { SOCKET_EVENTS, GAME_PHASES, ROLES, GAME_STATUS } from '../../../constants';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
