@@ -11,7 +11,7 @@ const checkCategoryMatch = (categories: ConnectionCategory[], words: string[]) =
     let maxMatches = 0;
 
     for (const category of categories) {
-        const matchCount = words.filter(w => category.words.includes(w)).length;
+        const matchCount = words.filter(word => category.words.includes(word)).length;
         if (matchCount === 4) {
             matchedCategory = category;
             break;

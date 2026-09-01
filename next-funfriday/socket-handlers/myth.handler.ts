@@ -44,13 +44,15 @@ export const setupMythHandlers = (socket: Socket, broadcast: () => Promise<void>
         });
 
         // Award points
-        for (const voteRecord of mythStatement.votes) {
-            if (voteRecord.vote === mythStatement.answer) {
-                await prisma.member.update({
-                    where: { id: voteRecord.memberId },
-                    data: { quizScore: { increment: 10 } }
-                });
-            }
+        const correctMemberIds = mythStatement.votes
+            .filter(voteRecord => voteRecord.vote === mythStatement.answer)
+            .map(voteRecord => voteRecord.memberId);
+
+        if (correctMemberIds.length > 0) {
+            await prisma.member.updateMany({
+                where: { id: { in: correctMemberIds } },
+                data: { quizScore: { increment: 10 } }
+            });
         }
 
         broadcast();

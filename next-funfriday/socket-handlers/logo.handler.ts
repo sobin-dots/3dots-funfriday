@@ -45,13 +45,15 @@ export const setupLogoHandlers = (socket: Socket, broadcast: () => Promise<void>
 
         // Award points
         const pointsToAward = logo.level === 'hard' ? 20 : logo.level === 'medium' ? 15 : 10;
-        for (const v of logo.votes) {
-            if (v.vote === logo.answer) {
-                await prisma.member.update({
-                    where: { id: v.memberId },
-                    data: { quizScore: { increment: pointsToAward } }
-                });
-            }
+        const correctMemberIds = logo.votes
+            .filter(voteRecord => voteRecord.vote === logo.answer)
+            .map(voteRecord => voteRecord.memberId);
+
+        if (correctMemberIds.length > 0) {
+            await prisma.member.updateMany({
+                where: { id: { in: correctMemberIds } },
+                data: { quizScore: { increment: pointsToAward } }
+            });
         }
 
         await prisma.gameState.update({
